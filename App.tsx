@@ -10,6 +10,7 @@ import { ParticlesBackground } from './components/Particles';
 import { UserProfileView } from './components/UserProfile';
 import { ArchiveView } from './components/Archive';
 import { SettingsView } from './components/Settings';
+import { Briefing } from './components/Briefing'; // NEW IMPORT
 import { OperationalEvent, ViewState, EventType, Shift } from './types';
 import { generateInsight } from './services/geminiService';
 import { UserProvider, useUser } from './context/UserContext';
@@ -45,6 +46,9 @@ const AppContent: React.FC = () => {
 
   // TIME MACHINE STATE
   const [viewingShiftId, setViewingShiftId] = useState<string | null>(null);
+
+  // BRIEFING STATE (Phase 8)
+  const [showBriefing, setShowBriefing] = useState(false);
 
   const [systemInsight, setSystemInsight] = useState<string>("Initialisation de l'intelligence...");
 
@@ -174,45 +178,58 @@ const AppContent: React.FC = () => {
     window.location.reload();
   };
 
-  // --- SHIFT LOGIC ---
+  // --- SHIFT LOGIC : THE ORACLE INTERCEPTION ---
+  
+  // 1. Triggered by Dashboard Button
   const handleToggleService = () => {
-    const now = Date.now();
-    
     if (currentShift?.status === 'active') {
-      // END SHIFT
-      const closedShift: Shift = { ...currentShift, endTime: now, status: 'closed' };
-      setCurrentShift(closedShift); 
-      
-      const endEvent: OperationalEvent = {
-        id: now.toString(),
-        type: EventType.SYSTEM,
-        role: 'System',
-        content: `Service Shift #${closedShift.id.slice(-4)} terminé. Durée : ${Math.round((now - closedShift.startTime)/60000)} min.`,
-        timestamp: now,
-        shiftId: closedShift.id
-      };
-      setEvents(prev => [...prev, endEvent]);
-
+      // Stopping is simple/immediate
+      confirmStopService();
     } else {
-      // START SHIFT
-      const newShift: Shift = {
-        id: Date.now().toString(),
-        startTime: now,
-        status: 'active',
-        startedBy: user.role
-      };
-      setCurrentShift(newShift);
-
-      const startEvent: OperationalEvent = {
-        id: now.toString(),
-        type: EventType.SYSTEM,
-        role: 'System',
-        content: `Service Shift #${newShift.id.slice(-4)} initialisé par ${user.role}. Monitoring actif.`,
-        timestamp: now,
-        shiftId: newShift.id
-      };
-      setEvents(prev => [...prev, startEvent]);
+      // Starting requires The Oracle Briefing
+      setShowBriefing(true);
     }
+  };
+
+  // 2. Actual Start Logic (Called by Briefing Component)
+  const confirmStartService = () => {
+    setShowBriefing(false);
+    const now = Date.now();
+    const newShift: Shift = {
+      id: Date.now().toString(),
+      startTime: now,
+      status: 'active',
+      startedBy: user.role
+    };
+    setCurrentShift(newShift);
+
+    const startEvent: OperationalEvent = {
+      id: now.toString(),
+      type: EventType.SYSTEM,
+      role: 'System',
+      content: `Service Shift #${newShift.id.slice(-4)} initialisé par ${user.role}. Monitoring actif.`,
+      timestamp: now,
+      shiftId: newShift.id
+    };
+    setEvents(prev => [...prev, startEvent]);
+  };
+
+  // 3. Actual Stop Logic
+  const confirmStopService = () => {
+    if (!currentShift) return;
+    const now = Date.now();
+    const closedShift: Shift = { ...currentShift, endTime: now, status: 'closed' };
+    setCurrentShift(closedShift); 
+    
+    const endEvent: OperationalEvent = {
+      id: now.toString(),
+      type: EventType.SYSTEM,
+      role: 'System',
+      content: `Service Shift #${closedShift.id.slice(-4)} terminé. Durée : ${Math.round((now - closedShift.startTime)/60000)} min.`,
+      timestamp: now,
+      shiftId: closedShift.id
+    };
+    setEvents(prev => [...prev, endEvent]);
   };
 
   const renderView = () => {
@@ -258,6 +275,15 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 font-sans overflow-hidden transition-colors duration-300 animate-in fade-in duration-700">
       
+      {/* THE ORACLE MODAL (Pre-Shift Briefing) */}
+      {showBriefing && (
+        <Briefing 
+          role={user.role} 
+          onConfirm={confirmStartService} 
+          onCancel={() => setShowBriefing(false)} 
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <nav className="hidden md:flex flex-col w-20 lg:w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 lg:p-6 justify-between transition-all duration-300 z-20 shadow-xl">
         <div className="space-y-10">

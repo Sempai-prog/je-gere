@@ -151,3 +151,80 @@ export const summarizeDocument = async (base64Data: string, mimeType: string): P
     throw new Error("Analyse échouée.");
   }
 };
+
+export const generatePreShiftBriefing = async (role: string): Promise<string[]> => {
+  // 1. LOCAL STRATEGY ENGINE (Fallback)
+  // Provides high-quality, role-specific advice without API calls.
+  const FALLBACK_STRATEGIES: Record<string, string[]> = {
+    'Chef': [
+      "Vérifiez l'état des stocks critiques maintenant.",
+      "Briefing rapide : propreté du poste avant le rush.",
+      "Annoncez les bons fort et clair ce soir.",
+      "Marche en avant stricte : pas de croisement.",
+      "Attention aux cuissons sur les viandes rouges."
+    ],
+    'Service': [
+      "Vérifiez l'assignation des tables VIP.",
+      "Sourire obligatoire, même dans le jus.",
+      "Anticipez les carafes d'eau avant la demande.",
+      "Vendez les suggestions du jour (Objectif +5).",
+      "Communication fluide avec le pass cuisine."
+    ],
+    'Manager': [
+      "Surveillez le ratio masse salariale en temps réel.",
+      "Faites un tour de salle toutes les 30 minutes.",
+      "Gérez les conflits clients immédiatement.",
+      "Soutenez les équipes en difficulté (Runner).",
+      "Vérifiez la propreté des sanitaires avant le service."
+    ],
+    'Owner': [
+      "Observez l'ambiance générale de la salle.",
+      "Notez 3 points d'amélioration physique.",
+      "Saluez les habitués personnellement.",
+      "Vérifiez l'affichage extérieur."
+    ]
+  };
+
+  const getFallback = (r: string) => {
+    // Find matching key or default to Manager
+    const key = Object.keys(FALLBACK_STRATEGIES).find(k => r.includes(k)) || 'Manager';
+    const strategies = FALLBACK_STRATEGIES[key];
+    // Shuffle and pick 3 random strategies
+    return strategies.sort(() => 0.5 - Math.random()).slice(0, 3);
+  };
+
+  if (!API_KEY) {
+    return getFallback(role);
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `
+        ROLE: Coach Sportif / Chef Exécutif.
+        TACHE: Génère 3 points clés stratégiques pour le service de ce soir (Briefing d'avant-match).
+        CIBLE: ${role}.
+        TON: Motivant, Précis, Urgent.
+        FORMAT: 3 phrases courtes, séparées par des sauts de ligne. Pas de numéros.
+      `,
+      config: {
+        temperature: 0.7,
+      }
+    });
+    
+    const text = response.text || "";
+    return text.split('\n').filter(line => line.trim().length > 0).slice(0, 3);
+  } catch (e: any) {
+    // 2. ERROR HANDLING (429 Handling)
+    const isQuotaError = e.message?.includes('429') || e.status === 429 || (e.body && e.body.includes('RESOURCE_EXHAUSTED'));
+    
+    if (isQuotaError) {
+      console.warn("Gemini Quota Exceeded (429). Activating Local Strategy Engine.");
+    } else {
+      console.warn("Briefing generation offline. Using local playbook.", e);
+    }
+    
+    // Return high-quality local data so the app never feels "broken"
+    return getFallback(role);
+  }
+};
