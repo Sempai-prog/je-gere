@@ -1,43 +1,305 @@
 
-import React from 'react';
-import { AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Users, AlertTriangle, TrendingUp, Activity, Thermometer, Play, Zap, Lock } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { 
+  Users, AlertTriangle, TrendingUp, Activity, Thermometer, Play, 
+  Zap, Lock, ChefHat, UtensilsCrossed, Euro, ClipboardList, Clock, 
+  Armchair, Ban, AlertOctagon
+} from 'lucide-react';
 import { OperationalEvent, EventType, Shift, UserRole } from '../types';
 
 interface DashboardProps {
   events: OperationalEvent[];
   currentShift: Shift | null;
   onToggleService: () => void;
-  userRole: UserRole; // <-- NOUVEAU PROP
+  userRole: UserRole;
 }
+
+// --- 1. WIDGET WRAPPER (GLASSMORPHISM) ---
+const Widget: React.FC<{ 
+  children: React.ReactNode; 
+  className?: string; 
+  delay?: number;
+  title?: string;
+  icon?: any;
+  color?: string; 
+}> = ({ children, className = "", delay = 0, title, icon: Icon, color = "text-slate-500" }) => (
+  <div 
+    className={`
+      bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 
+      p-6 rounded-[2rem] shadow-xl shadow-slate-900/5 flex flex-col relative overflow-hidden group
+      animate-in fade-in slide-in-from-bottom-8 fill-mode-forwards ${className}
+    `}
+    style={{ animationDelay: `${delay}ms` }}
+  >
+    {(title || Icon) && (
+      <div className="flex justify-between items-start mb-4 z-10">
+        {title && <h3 className={`font-bold text-xs uppercase tracking-widest ${color}`}>{title}</h3>}
+        {Icon && <Icon size={20} className={`${color} opacity-80`} />}
+      </div>
+    )}
+    <div className="flex-1 z-10 relative">{children}</div>
+    
+    {/* Hover Glow Effect */}
+    <div className="absolute -inset-full top-0 block bg-gradient-to-r from-transparent to-white/10 dark:to-white/5 -skew-x-12 opacity-0 group-hover:animate-shine pointer-events-none" />
+  </div>
+);
+
+// --- 2. SPECIFIC WIDGETS ---
+
+// A. SERVICE PACE (Chart) - ADAPTIVE
+const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({ data, showFinancials }) => (
+  <Widget className="col-span-1 md:col-span-2 md:row-span-2" delay={100}>
+    <div className="flex justify-between items-start mb-4 z-10">
+      <div>
+        <h3 className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">
+          {showFinancials ? 'Revenue Velocity' : 'Service Rhythm'}
+        </h3>
+        <div className="flex items-baseline gap-2 mt-1">
+           <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">
+             {showFinancials ? '€2,840' : '216'}
+           </div>
+           <span className="text-sm font-medium text-slate-500">
+             {showFinancials ? 'est. revenue' : 'covers'}
+           </span>
+        </div>
+      </div>
+      <div className="p-3 bg-brand-500/10 rounded-2xl text-brand-600 dark:text-brand-400">
+        <TrendingUp size={24} />
+      </div>
+    </div>
+    <div className="w-full flex-1 min-h-[200px] -ml-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="colorMain" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={showFinancials ? '#10b981' : '#6366f1'} stopOpacity={0.4}/>
+              <stop offset="95%" stopColor={showFinancials ? '#10b981' : '#6366f1'} stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
+          <Tooltip 
+            contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#334155', borderRadius: '12px', color: '#f8fafc' }} 
+            itemStyle={{ color: showFinancials ? '#34d399' : '#818cf8' }} 
+          />
+          <Area 
+            type="monotone" 
+            dataKey={showFinancials ? "revenue" : "covers"} 
+            stroke={showFinancials ? '#10b981' : '#6366f1'} 
+            strokeWidth={4} 
+            fillOpacity={1} 
+            fill="url(#colorMain)" 
+            animationDuration={2000} 
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  </Widget>
+);
+
+// B. FINANCIAL PULSE (Manager/Owner Only)
+const FinancialPulseWidget: React.FC = () => (
+  <Widget className="bg-emerald-500/5 border-emerald-500/20" delay={50} title="Financials" icon={Euro} color="text-emerald-600 dark:text-emerald-400">
+     <div className="space-y-4">
+       <div>
+         <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">28%</div>
+         <div className="text-xs font-bold text-slate-500 uppercase">Labor Cost</div>
+         <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+           <div className="h-full bg-emerald-500 w-[28%] rounded-full"></div>
+         </div>
+       </div>
+       <div className="pt-4 border-t border-emerald-500/10">
+         <div className="flex justify-between items-center mb-1">
+           <span className="text-xs text-slate-500 font-bold">Ticket Avg</span>
+           <span className="text-xs font-mono font-bold text-emerald-600">€42.50</span>
+         </div>
+         <div className="flex justify-between items-center">
+           <span className="text-xs text-slate-500 font-bold">Void/Comp</span>
+           <span className="text-xs font-mono font-bold text-rose-500">2.1%</span>
+         </div>
+       </div>
+     </div>
+  </Widget>
+);
+
+// C. KITCHEN OPTICS (Chef Specific)
+const KitchenOpticsWidget: React.FC = () => (
+  <Widget className="row-span-2" delay={150} title="The Pass" icon={ChefHat} color="text-slate-500">
+     <div className="space-y-6 h-full flex flex-col">
+       
+       {/* Pressure Gauge */}
+       <div>
+         <div className="flex justify-between items-end mb-2">
+           <span className="text-4xl font-black text-rose-500">8.2</span>
+           <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded">HIGH LOAD</span>
+         </div>
+         <div className="flex gap-1 h-12 items-end">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="flex-1 bg-rose-500 rounded-sm animate-pulse" style={{ height: `${20 + Math.random() * 80}%`, opacity: 0.4 + (i/10) }} />
+            ))}
+            {[...Array(4)].map((_, i) => (
+              <div key={i+8} className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-sm" style={{ height: '10%' }} />
+            ))}
+         </div>
+       </div>
+
+       {/* 86 List (Stockouts) */}
+       <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 mb-3 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
+            <Ban size={12} className="text-rose-500"/> Out of Stock (86)
+          </div>
+          <ul className="space-y-2">
+            {['Sea Bass', 'Truffle Oil', 'Ribeye 10oz'].map((item) => (
+              <li key={item} className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-300">
+                <span>{item}</span>
+                <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500">0 qty</span>
+              </li>
+            ))}
+          </ul>
+       </div>
+     </div>
+  </Widget>
+);
+
+// D. FLOOR METRIX (Service Specific)
+const FloorMetrixWidget: React.FC = () => (
+  <Widget delay={150} title="Floor Status" icon={Armchair} color="text-indigo-500">
+     <div className="grid grid-cols-2 gap-4">
+       <div className="bg-indigo-50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">45m</div>
+          <div className="text-[10px] text-indigo-400 font-bold uppercase">Avg Turn</div>
+       </div>
+       <div className="bg-purple-50 dark:bg-purple-900/10 p-3 rounded-xl border border-purple-100 dark:border-purple-800/30">
+          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">3</div>
+          <div className="text-[10px] text-purple-400 font-bold uppercase">VIP Tables</div>
+       </div>
+     </div>
+     <div className="mt-4">
+        <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+          <span>Capacity</span>
+          <span>85%</span>
+        </div>
+        <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+           <div className="h-full bg-slate-800 dark:bg-slate-400 w-[85%] rounded-full"></div>
+        </div>
+     </div>
+  </Widget>
+);
+
+// E. UNIVERSAL WIDGETS
+const TeamMoodWidget: React.FC<{ mood: number }> = ({ mood }) => (
+  <Widget delay={200} title="Morale" icon={Users} color="text-slate-400">
+     <div className="flex items-end gap-3">
+       <span className={`text-5xl font-bold tracking-tighter ${mood < 5 ? 'text-rose-500' : 'text-emerald-500'}`}>{mood}</span>
+       <span className="text-slate-400 mb-2 font-medium">/ 10</span>
+     </div>
+     <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full mt-4 overflow-hidden">
+       <div className={`h-full rounded-full transition-all duration-1000 ${mood < 5 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${mood * 10}%` }}></div>
+     </div>
+  </Widget>
+);
+
+const AlertsWidget: React.FC<{ alerts: any[] }> = ({ alerts }) => (
+  <Widget delay={250} title="Active Alerts" icon={AlertTriangle} color={alerts.length > 0 ? "text-amber-500" : "text-slate-400"} className="md:col-span-1">
+    <div className="space-y-2">
+      {alerts.length === 0 ? (
+        <div className="h-full flex flex-col items-center justify-center text-slate-400 py-4 opacity-50">
+          <Zap size={24} className="mb-2"/>
+          <span className="text-xs font-medium">All Systems Nominal</span>
+        </div>
+      ) : (
+        alerts.slice(0, 3).map((alert, i) => (
+          <div key={i} className="flex gap-3 items-start p-3 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-800/30">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse mt-1.5 shrink-0"/>
+            <p className="text-xs font-medium text-slate-700 dark:text-slate-300 leading-snug line-clamp-2">
+              {alert.content}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
+  </Widget>
+);
+
+// --- 3. MAIN DASHBOARD ---
 
 export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onToggleService, userRole }) => {
   const isServiceActive = currentShift?.status === 'active';
   
-  // Filtrage contextuel
-  const relevantEvents = isServiceActive 
+  // Contextual Data Processing
+  const relevantEvents = useMemo(() => isServiceActive 
     ? events.filter(e => e.shiftId === currentShift?.id)
-    : events;
+    : events, [isServiceActive, events, currentShift]);
 
-  const alerts = relevantEvents.filter(e => e.type === EventType.ALERT).length;
+  const activeAlerts = relevantEvents.filter(e => e.type === EventType.ALERT);
   
-  // Calcul Métriques
   const moodSignals = relevantEvents.filter(e => e.metadata?.mood !== undefined);
   const avgMood = moodSignals.length > 0 
     ? Math.round(moodSignals.reduce((acc, curr) => acc + (curr.metadata?.mood || 0), 0) / moodSignals.length) 
     : 8;
 
-  const paceData = [
-    { time: '18:00', covers: 12 }, { time: '18:30', covers: 25 },
-    { time: '19:00', covers: 35 }, { time: '19:30', covers: 55 },
-    { time: '20:00', covers: 85 }, { time: '20:30', covers: 92 },
-    { time: '21:00', covers: 60 }, { time: '21:30', covers: 45 },
-    { time: '22:00', covers: 24 },
+  // Mock Data for Charts
+  const chartData = [
+    { time: '18:00', covers: 12, revenue: 450 }, { time: '18:30', covers: 25, revenue: 980 },
+    { time: '19:00', covers: 35, revenue: 1450 }, { time: '19:30', covers: 55, revenue: 2300 },
+    { time: '20:00', covers: 85, revenue: 3800 }, { time: '20:30', covers: 92, revenue: 4100 },
+    { time: '21:00', covers: 60, revenue: 2900 }, { time: '21:30', covers: 45, revenue: 1800 },
+    { time: '22:00', covers: 24, revenue: 950 },
   ];
 
-  // LOGIQUE DE PERMISSION (Access Control)
-  const canViewFinancials = ['Owner', 'Manager'].includes(userRole);
-  const canViewKitchenPressure = ['Chef', 'Manager', 'Owner'].includes(userRole);
+  // --- ROLE-BASED LAYOUT RENDERER ---
+  const renderLayout = () => {
+    // 1. CHEF LAYOUT
+    if (userRole === 'Chef') {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[200px]">
+          <ServicePaceWidget data={chartData} showFinancials={false} />
+          <KitchenOpticsWidget />
+          <AlertsWidget alerts={activeAlerts} />
+          <TeamMoodWidget mood={avgMood} />
+        </div>
+      );
+    }
+
+    // 2. SERVICE LAYOUT
+    if (userRole === 'Service') {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[200px]">
+          <ServicePaceWidget data={chartData} showFinancials={false} />
+          <FloorMetrixWidget />
+          <TeamMoodWidget mood={avgMood} />
+          <AlertsWidget alerts={activeAlerts} />
+        </div>
+      );
+    }
+
+    // 3. MANAGER / OWNER LAYOUT (Default)
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[200px]">
+        {/* Row 1 */}
+        <FinancialPulseWidget />
+        <ServicePaceWidget data={chartData} showFinancials={true} />
+        <div className="md:col-span-1 flex flex-col gap-6 h-full">
+           <TeamMoodWidget mood={avgMood} />
+        </div>
+
+        {/* Row 2 */}
+        <Widget delay={300} title="Kitchen Load" icon={Thermometer} color="text-slate-400">
+           <div className="flex gap-1 h-24 items-end mt-4">
+             {[...Array(12)].map((_, i) => (
+                <div key={i} className={`flex-1 rounded-sm ${i < 9 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-800'}`} style={{ height: `${20 + Math.random() * 60}%` }} />
+             ))}
+           </div>
+        </Widget>
+        <AlertsWidget alerts={activeAlerts} />
+        
+        {/* Placeholder for future expansion */}
+        <div className="md:col-span-2 bg-slate-100/50 dark:bg-slate-800/30 border border-dashed border-slate-300 dark:border-slate-700 rounded-[2rem] flex items-center justify-center text-slate-400 text-xs font-bold uppercase tracking-widest p-6">
+           Module Slot Available
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6 pb-20">
@@ -47,13 +309,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Live Service</h2>
           <div className="flex items-center gap-2">
              <p className="text-slate-500 dark:text-slate-400 font-medium">Operational Dashboard</p>
-             <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-mono uppercase">
-               VIEW: {userRole}
+             <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-mono uppercase border border-slate-300 dark:border-slate-700">
+               MODULE: {userRole}
              </span>
           </div>
         </div>
         
-        {/* Service Toggle (Accessible only to Manager/Owner/Chef) */}
         {['Manager', 'Owner', 'Chef'].includes(userRole) && (
           <button 
             onClick={onToggleService}
@@ -72,113 +333,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
 
       {!isServiceActive && (
         <div className="bg-slate-100/50 dark:bg-slate-800/30 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 p-4 rounded-2xl flex items-center justify-center text-slate-500 text-sm mb-4 animate-in fade-in zoom-in duration-500">
-          <span>Service is currently closed. Dashboard is in review mode.</span>
+          <Lock size={14} className="mr-2 opacity-50"/>
+          <span>Service is closed. Dashboard in review mode.</span>
         </div>
       )}
 
-      {/* GRID */}
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 md:auto-rows-[240px] transition-all duration-700 ${!isServiceActive ? 'opacity-60 grayscale-[0.8] blur-[1px] pointer-events-none' : ''}`}>
-        
-        {/* WIDGET 1: SERVICE PACE (Financials/Volume) */}
-        <div className="md:col-span-2 md:row-span-2 bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-2xl shadow-slate-900/5 flex flex-col justify-between relative overflow-hidden group animate-in fade-in slide-in-from-bottom-8 fill-mode-forwards" style={{animationDelay: '100ms'}}>
-          
-          {canViewFinancials ? (
-            <>
-              <div className="flex justify-between items-start mb-4 z-10">
-                <div>
-                  <h3 className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Service Pace</h3>
-                  <div className="flex items-baseline gap-2 mt-1">
-                     <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">216</div>
-                     <span className="text-sm font-medium text-slate-500">covers</span>
-                  </div>
-                </div>
-                <div className="p-3 bg-brand-500/10 rounded-2xl text-brand-600 dark:text-brand-400">
-                  <TrendingUp size={24} />
-                </div>
-              </div>
-              <div className="w-full flex-1 min-h-[250px] -ml-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={paceData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorCovers" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
-                    <Tooltip contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#334155', borderRadius: '12px', color: '#f8fafc' }} itemStyle={{ color: '#818cf8' }} cursor={{ stroke: '#6366f1', strokeWidth: 2 }} />
-                    <Area type="monotone" dataKey="covers" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorCovers)" animationDuration={2000} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </>
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-900/80 backdrop-blur-sm z-20">
-               <div className="p-4 bg-slate-200 dark:bg-slate-800 rounded-full mb-4 shadow-inner"><Lock size={32} className="text-slate-400"/></div>
-               <p className="text-slate-500 font-bold text-sm uppercase tracking-wider">Financials Locked</p>
-               <p className="text-xs text-slate-400 mt-1">Role: {userRole}</p>
-            </div>
-          )}
-        </div>
-
-        {/* WIDGET 2: TEAM MOOD (Visible to all) */}
-        <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-xl shadow-slate-900/5 flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300 animate-in fade-in slide-in-from-bottom-8 fill-mode-forwards" style={{animationDelay: '200ms'}}>
-           <div className="flex justify-between items-start">
-             <h3 className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Morale</h3>
-             <Users size={20} className="text-slate-400" />
-           </div>
-           <div className="flex items-end gap-3 mt-4 md:mt-0">
-             <span className={`text-5xl font-bold tracking-tighter ${avgMood < 5 ? 'text-rose-500' : 'text-emerald-500'}`}>{avgMood}</span>
-             <span className="text-slate-400 mb-2 font-medium">/ 10</span>
-           </div>
-           <div className="w-full bg-slate-200 dark:bg-slate-800 h-3 rounded-full mt-4 overflow-hidden shadow-inner">
-             <div className={`h-full rounded-full transition-all duration-1000 ${avgMood < 5 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${avgMood * 10}%` }}></div>
-           </div>
-        </div>
-
-        {/* WIDGET 3: ALERTS (Filtered) */}
-        <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 p-6 rounded-[2rem] shadow-xl shadow-slate-900/5 flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300 animate-in fade-in slide-in-from-bottom-8 fill-mode-forwards" style={{animationDelay: '300ms'}}>
-           <div className="flex justify-between items-start">
-             <h3 className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Alerts</h3>
-             <div className={`p-2 rounded-xl ${alerts > 0 ? 'bg-amber-500/20 text-amber-500 animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>
-                <AlertTriangle size={20} />
-             </div>
-           </div>
-           <div className="mt-4 md:mt-0">
-             <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">{alerts}</div>
-             <p className="text-xs text-slate-500 font-medium mt-1">Active items</p>
-           </div>
-           <div className="flex flex-col gap-2 mt-3">
-             {relevantEvents.filter(e => e.type === EventType.ALERT).slice(0, 2).map((alert, i) => (
-               <div key={i} className="text-[10px] font-medium truncate px-3 py-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20 flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></div>
-                 {alert.content}
-               </div>
-             ))}
-             {alerts === 0 && <div className="text-[10px] font-medium px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20 flex items-center gap-2"><Zap size={10} /> No alerts</div>}
-           </div>
-        </div>
+      {/* DYNAMIC GRID RENDER */}
+      <div className={`transition-all duration-700 ${!isServiceActive ? 'opacity-80 grayscale-[0.3]' : ''}`}>
+        {renderLayout()}
       </div>
-
-      {/* WIDGET 4: KITCHEN PRESSURE (Role Dependent) */}
-      {canViewKitchenPressure && (
-        <div className={`bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 p-6 rounded-[2rem] flex items-center gap-6 transition-all duration-500 animate-in fade-in slide-in-from-bottom-8 fill-mode-forwards ${!isServiceActive ? 'opacity-60 grayscale-[0.5]' : ''}`} style={{animationDelay: '400ms'}}>
-          <div className="p-4 bg-indigo-500/10 rounded-2xl text-indigo-500">
-            <Thermometer size={24} />
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between mb-3">
-              <span className="font-bold text-slate-900 dark:text-white">Kitchen Pressure</span>
-              <span className="text-sm font-medium text-slate-500">Live Load</span>
-            </div>
-            <div className="flex gap-1.5 h-4">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className={`flex-1 rounded-md transition-all duration-500 ${i < 8 ? 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.4)]' : 'bg-slate-200 dark:bg-slate-800'}`} style={{transform: i < 8 ? `scaleY(${1 + i * 0.05})` : 'scaleY(1)'}} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
