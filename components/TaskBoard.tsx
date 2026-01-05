@@ -17,12 +17,12 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
 
   const getRelativeTime = (timestamp: number) => {
     const diff = Math.floor((Date.now() - timestamp) / 1000);
-    if (diff < 60) return 'Just now';
+    if (diff < 60) return "À l'instant";
     const mins = Math.floor(diff / 60);
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60) return `il y a ${mins} min`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (hours < 24) return `il y a ${hours} h`;
+    return new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
   
   const getIcon = (type: EventType) => {
@@ -55,11 +55,11 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
     <div className="h-full flex flex-col pb-6">
        <header className="mb-6 animate-in fade-in slide-in-from-top-4 duration-700 flex justify-between items-end">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Timeline</h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium">Reality Feed • {events.length} Events</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Fil d'Actualité</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">Flux de Réalité • {events.length} Événements</p>
           </div>
           <div className="text-xs font-mono text-slate-400 bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded border border-slate-200 dark:border-slate-800">
-            LIVE SYNC
+            SYNC LIVE
           </div>
        </header>
 
@@ -70,7 +70,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
           {events.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 opacity-50 animate-in fade-in duration-1000">
               <Clock size={48} className="text-slate-300 mb-4" />
-              <p className="text-slate-500">Waiting for shift activity...</p>
+              <p className="text-slate-500">En attente d'activité...</p>
             </div>
           )}
 
@@ -103,7 +103,7 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
                       </span>
                       {event.type === EventType.AUDIO && (
                         <span className="text-[10px] font-bold bg-indigo-500/10 text-indigo-500 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Mic size={10} /> Voice
+                          <Mic size={10} /> Vocal
                         </span>
                       )}
                     </div>
@@ -121,12 +121,12 @@ export const EventTimeline: React.FC<EventTimelineProps> = ({ events }) => {
                     <div className="mt-3 flex flex-wrap gap-2 pt-3 border-t border-slate-200/20 dark:border-slate-700/20">
                        {event.metadata.mood && (
                          <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/10">
-                           Mood: {event.metadata.mood}/10
+                           Mood : {event.metadata.mood}/10
                          </span>
                        )}
                        {event.metadata.pressure && (
                          <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${event.metadata.pressure > 7 ? 'bg-rose-500/10 text-rose-500 border-rose-500/10' : 'bg-brand-500/10 text-brand-600 border-brand-500/10'}`}>
-                           Pressure: {event.metadata.pressure}/10
+                           Tension : {event.metadata.pressure}/10
                          </span>
                        )}
                        {event.metadata.tags?.map(tag => (

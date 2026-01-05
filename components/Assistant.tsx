@@ -32,12 +32,12 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
 
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Voice Config - Prefer English to match the "Restaurant Veteran" persona
+    // Voice Config - Prefer French
     const voices = synthesisRef.current.getVoices();
-    const voice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('en'));
+    const voice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('fr'));
     if (voice) utterance.voice = voice;
 
-    utterance.lang = 'en-US';
+    utterance.lang = 'fr-FR';
     utterance.pitch = 1;
     utterance.rate = 1.15; // Slightly faster for "Kitchen Pace"
 
@@ -60,7 +60,7 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
     const shiftStatus = currentShift?.status || 'undefined';
     chatSessionRef.current = createChatSession(currentRole, shiftStatus);
 
-    const initText = `Chief of Staff online. Role: ${currentRole}. Service: ${shiftStatus === 'active' ? 'LIVE' : 'OFFLINE'}.`;
+    const initText = `Cœur Neuronal en ligne. Rôle : ${currentRole}. Service : ${shiftStatus === 'active' ? 'EN COURS' : 'HORS LIGNE'}.`;
     
     setMessages([
       {
@@ -142,7 +142,7 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
     } catch (error) {
       setMessages(prev => prev.map(msg => 
         msg.id === modelMsgId 
-          ? { ...msg, text: "Neural core connection error." }
+          ? { ...msg, text: "Erreur de connexion neurale." }
           : msg
       ));
     } finally {
@@ -170,9 +170,9 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
             )}
           </div>
           <div>
-            <h2 className="font-bold text-slate-900 dark:text-white text-sm">Neural Core</h2>
+            <h2 className="font-bold text-slate-900 dark:text-white text-sm">Cœur Neuronal</h2>
             <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider flex items-center gap-1">
-              {currentRole} • {currentShift?.status === 'active' ? 'ON AIR' : 'OFF'}
+              {currentRole} • {currentShift?.status === 'active' ? 'EN DIRECT' : 'OFF'}
             </p>
           </div>
         </div>
@@ -185,7 +185,7 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
                setAutoSpeak(!autoSpeak);
              }}
              className={`p-2 rounded-lg transition-all ${autoSpeak ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-             title={autoSpeak ? "Headset Mode ON" : "Silent Mode"}
+             title={autoSpeak ? "Mode Casque ON" : "Mode Silencieux"}
            >
              {autoSpeak ? <Volume2 size={18} /> : <VolumeX size={18} />}
            </button>
@@ -195,7 +195,7 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
                 const shiftStatus = currentShift?.status || 'undefined';
                 chatSessionRef.current = createChatSession(currentRole, shiftStatus);
                 stopSpeaking();
-                setMessages(prev => [...prev, {id: Date.now().toString(), role: 'model', text: 'Memory buffer reset.', timestamp: Date.now()}]);
+                setMessages(prev => [...prev, {id: Date.now().toString(), role: 'model', text: 'Mémoire tampon effacée.', timestamp: Date.now()}]);
              }}
              className="p-2 text-slate-400 hover:text-indigo-500 transition-colors"
              title="Reset Context"
@@ -254,7 +254,7 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={`Orders for ${currentRole}...`}
+            placeholder={`Instructions pour ${currentRole}...`}
             className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm font-medium"
             disabled={isLoading}
           />

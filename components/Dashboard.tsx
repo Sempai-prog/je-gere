@@ -54,14 +54,14 @@ const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({
     <div className="flex justify-between items-start mb-4 z-10">
       <div>
         <h3 className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">
-          {showFinancials ? 'Revenue Velocity' : 'Service Rhythm'}
+          {showFinancials ? 'Vitesse du CA' : 'Rythme du Service'}
         </h3>
         <div className="flex items-baseline gap-2 mt-1">
            <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">
-             {showFinancials ? '€2,840' : '216'}
+             {showFinancials ? '2,840 €' : '216'}
            </div>
            <span className="text-sm font-medium text-slate-500">
-             {showFinancials ? 'est. revenue' : 'covers'}
+             {showFinancials ? 'est. revenu' : 'couverts'}
            </span>
         </div>
       </div>
@@ -100,23 +100,23 @@ const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({
 
 // B. FINANCIAL PULSE (Manager/Owner Only)
 const FinancialPulseWidget: React.FC = () => (
-  <Widget className="bg-emerald-500/5 border-emerald-500/20" delay={50} title="Financials" icon={Euro} color="text-emerald-600 dark:text-emerald-400">
+  <Widget className="bg-emerald-500/5 border-emerald-500/20" delay={50} title="Finances" icon={Euro} color="text-emerald-600 dark:text-emerald-400">
      <div className="space-y-4">
        <div>
          <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">28%</div>
-         <div className="text-xs font-bold text-slate-500 uppercase">Labor Cost</div>
+         <div className="text-xs font-bold text-slate-500 uppercase">Coût Matière</div>
          <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
            <div className="h-full bg-emerald-500 w-[28%] rounded-full"></div>
          </div>
        </div>
        <div className="pt-4 border-t border-emerald-500/10">
          <div className="flex justify-between items-center mb-1">
-           <span className="text-xs text-slate-500 font-bold">Ticket Avg</span>
-           <span className="text-xs font-mono font-bold text-emerald-600">€42.50</span>
+           <span className="text-xs text-slate-500 font-bold">Ticket Moyen</span>
+           <span className="text-xs font-mono font-bold text-emerald-600">42,50 €</span>
          </div>
          <div className="flex justify-between items-center">
-           <span className="text-xs text-slate-500 font-bold">Void/Comp</span>
-           <span className="text-xs font-mono font-bold text-rose-500">2.1%</span>
+           <span className="text-xs text-slate-500 font-bold">Offerts/Pertes</span>
+           <span className="text-xs font-mono font-bold text-rose-500">2,1%</span>
          </div>
        </div>
      </div>
@@ -125,14 +125,14 @@ const FinancialPulseWidget: React.FC = () => (
 
 // C. KITCHEN OPTICS (Chef Specific)
 const KitchenOpticsWidget: React.FC = () => (
-  <Widget className="row-span-2" delay={150} title="The Pass" icon={ChefHat} color="text-slate-500">
+  <Widget className="row-span-2" delay={150} title="Le Passe" icon={ChefHat} color="text-slate-500">
      <div className="space-y-6 h-full flex flex-col">
        
        {/* Pressure Gauge */}
        <div>
          <div className="flex justify-between items-end mb-2">
            <span className="text-4xl font-black text-rose-500">8.2</span>
-           <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded">HIGH LOAD</span>
+           <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded">CHARGE ÉLEVÉE</span>
          </div>
          <div className="flex gap-1 h-12 items-end">
             {[...Array(8)].map((_, i) => (
@@ -147,13 +147,13 @@ const KitchenOpticsWidget: React.FC = () => (
        {/* 86 List (Stockouts) */}
        <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-3 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
-            <Ban size={12} className="text-rose-500"/> Out of Stock (86)
+            <Ban size={12} className="text-rose-500"/> Ruptures (86)
           </div>
           <ul className="space-y-2">
-            {['Sea Bass', 'Truffle Oil', 'Ribeye 10oz'].map((item) => (
+            {['Bar de Ligne', 'Huile Truffe', 'Entrecôte 300g'].map((item) => (
               <li key={item} className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-300">
                 <span>{item}</span>
-                <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500">0 qty</span>
+                <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded text-slate-500">0 qté</span>
               </li>
             ))}
           </ul>
@@ -164,20 +164,20 @@ const KitchenOpticsWidget: React.FC = () => (
 
 // D. FLOOR METRIX (Service Specific)
 const FloorMetrixWidget: React.FC = () => (
-  <Widget delay={150} title="Floor Status" icon={Armchair} color="text-indigo-500">
+  <Widget delay={150} title="État de la Salle" icon={Armchair} color="text-indigo-500">
      <div className="grid grid-cols-2 gap-4">
        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
           <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">45m</div>
-          <div className="text-[10px] text-indigo-400 font-bold uppercase">Avg Turn</div>
+          <div className="text-[10px] text-indigo-400 font-bold uppercase">Rotation Moy.</div>
        </div>
        <div className="bg-purple-50 dark:bg-purple-900/10 p-3 rounded-xl border border-purple-100 dark:border-purple-800/30">
           <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">3</div>
-          <div className="text-[10px] text-purple-400 font-bold uppercase">VIP Tables</div>
+          <div className="text-[10px] text-purple-400 font-bold uppercase">Tables VIP</div>
        </div>
      </div>
      <div className="mt-4">
         <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-          <span>Capacity</span>
+          <span>Capacité</span>
           <span>85%</span>
         </div>
         <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
@@ -189,7 +189,7 @@ const FloorMetrixWidget: React.FC = () => (
 
 // E. UNIVERSAL WIDGETS
 const TeamMoodWidget: React.FC<{ mood: number }> = ({ mood }) => (
-  <Widget delay={200} title="Morale" icon={Users} color="text-slate-400">
+  <Widget delay={200} title="Ambiance Équipe" icon={Users} color="text-slate-400">
      <div className="flex items-end gap-3">
        <span className={`text-5xl font-bold tracking-tighter ${mood < 5 ? 'text-rose-500' : 'text-emerald-500'}`}>{mood}</span>
        <span className="text-slate-400 mb-2 font-medium">/ 10</span>
@@ -201,12 +201,12 @@ const TeamMoodWidget: React.FC<{ mood: number }> = ({ mood }) => (
 );
 
 const AlertsWidget: React.FC<{ alerts: any[] }> = ({ alerts }) => (
-  <Widget delay={250} title="Active Alerts" icon={AlertTriangle} color={alerts.length > 0 ? "text-amber-500" : "text-slate-400"} className="md:col-span-1">
+  <Widget delay={250} title="Alertes en Cours" icon={AlertTriangle} color={alerts.length > 0 ? "text-amber-500" : "text-slate-400"} className="md:col-span-1">
     <div className="space-y-2">
       {alerts.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center text-slate-400 py-4 opacity-50">
           <Zap size={24} className="mb-2"/>
-          <span className="text-xs font-medium">All Systems Nominal</span>
+          <span className="text-xs font-medium">Systèmes Nominaux</span>
         </div>
       ) : (
         alerts.slice(0, 3).map((alert, i) => (
@@ -290,7 +290,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
         </div>
 
         {/* Row 2 */}
-        <Widget delay={300} title="Kitchen Load" icon={Thermometer} color="text-slate-400">
+        <Widget delay={300} title="Charge Cuisine" icon={Thermometer} color="text-slate-400">
            <div className="flex gap-1 h-24 items-end mt-4">
              {[...Array(12)].map((_, i) => (
                 <div key={i} className={`flex-1 rounded-sm ${i < 9 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-800'}`} style={{ height: `${20 + Math.random() * 60}%` }} />
@@ -301,7 +301,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
         
         {/* Placeholder for future expansion */}
         <div className="md:col-span-2 bg-slate-100/50 dark:bg-slate-800/30 border border-dashed border-slate-300 dark:border-slate-700 rounded-[2rem] flex items-center justify-center text-slate-400 text-xs font-bold uppercase tracking-widest p-6">
-           Module Slot Available
+           Emplacement Module
         </div>
       </div>
     );
@@ -313,12 +313,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
-            {isReplayMode ? 'Ghost Mode' : 'Live Service'}
+            {isReplayMode ? 'Mode Replay' : 'Service en Direct'}
           </h2>
           <div className="flex items-center gap-2">
-             <p className="text-slate-500 dark:text-slate-400 font-medium">{isReplayMode ? 'Historical Playback' : 'Operational Dashboard'}</p>
+             <p className="text-slate-500 dark:text-slate-400 font-medium">{isReplayMode ? 'Lecture Historique' : 'Tableau de Bord Opérationnel'}</p>
              <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase border ${isReplayMode ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'}`}>
-               MODULE: {userRole}
+               MODULE : {userRole}
              </span>
           </div>
         </div>
@@ -335,7 +335,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
             `}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"/>
-            {isServiceActive ? <><Activity size={18} className="animate-pulse"/><span>Service Active</span></> : <><Play size={18}/><span>Start Service</span></>}
+            {isServiceActive ? <><Activity size={18} className="animate-pulse"/><span>Service en Cours</span></> : <><Play size={18}/><span>Lancer le Service</span></>}
           </button>
         )}
       </header>
@@ -344,7 +344,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
       {!isServiceActive && !isReplayMode && (
         <div className="bg-slate-100/50 dark:bg-slate-800/30 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 p-4 rounded-2xl flex items-center justify-center text-slate-500 text-sm mb-4 animate-in fade-in zoom-in duration-500">
           <Lock size={14} className="mr-2 opacity-50"/>
-          <span>Service is closed. Dashboard in review mode.</span>
+          <span>Service terminé. Mode revue activé.</span>
         </div>
       )}
 

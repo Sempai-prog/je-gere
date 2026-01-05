@@ -49,7 +49,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
           <p className="text-slate-400 text-sm uppercase tracking-[0.2em] mt-2 font-medium">Intelligence Opérationnelle</p>
         </div>
         <p className="text-slate-500 text-sm max-w-xs mx-auto leading-relaxed border-t border-slate-800 pt-4 mt-4">
-          Le système nerveux de votre restaurant. <br/>
+          Le système nerveux de votre établissement. <br/>
           <span className="text-slate-300">Réalité. Décision. Vitesse.</span>
         </p>
       </div>
@@ -183,7 +183,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       </div>
       
       <div className="mt-12 text-[10px] text-slate-600 font-mono">
-        JE GERE v0.1.2 • SECURE CONNECTION • LATENCY: 12ms
+        JE GERE v0.1.2 • CONNEXION SÉCURISÉE • LATENCE: 12ms
       </div>
     </div>
   );

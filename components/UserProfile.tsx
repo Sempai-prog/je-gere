@@ -22,9 +22,9 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
   const getStatsForRole = (r: UserRole) => {
     switch (r) {
       case 'Chef': return [
-        { label: 'Plats Envoyés', value: 142, unit: 'today', trend: 12, status: 'good' },
+        { label: 'Plats Envoyés', value: 142, unit: 'ujd', trend: 12, status: 'good' },
         { label: 'Taux Rupture', value: 2, unit: 'items', trend: -50, status: 'good' },
-        { label: 'Temps Moyen', value: 8, unit: 'min', trend: 5, status: 'warning' },
+        { label: 'Temps Envoi', value: 8, unit: 'min', trend: 5, status: 'warning' },
       ];
       case 'Service': return [
         { label: 'Couverts', value: 48, unit: 'pax', trend: 8, status: 'good' },
@@ -32,14 +32,14 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
         { label: 'Incidents', value: 0, unit: 'alertes', trend: 0, status: 'neutral' },
       ];
       case 'Manager': return [
-        { label: 'Labor Cost', value: 28, unit: '%', trend: -2, status: 'good' },
+        { label: 'Masse Salariale', value: 28, unit: '%', trend: -2, status: 'good' },
         { label: 'Satisfaction', value: 4.8, unit: '/ 5', trend: 4, status: 'good' },
-        { label: 'Conflits', value: 1, unit: 'active', trend: 100, status: 'warning' },
+        { label: 'Conflits', value: 1, unit: 'actif', trend: 100, status: 'warning' },
       ];
       case 'Owner': return [
         { label: 'Chiffre Affaires', value: '4.2k', unit: '€', trend: 10, status: 'good' },
         { label: 'Réputation', value: 4.9, unit: 'G.Maps', trend: 1, status: 'good' },
-        { label: 'Cash Flow', value: 'OK', unit: 'status', trend: 0, status: 'neutral' },
+        { label: 'Trésorerie', value: 'OK', unit: 'status', trend: 0, status: 'neutral' },
       ];
       default: return [];
     }
@@ -77,7 +77,7 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
                 <Mail size={14}/> {name.toLowerCase().replace(/\s+/g, '.')}@jegere.app
               </span>
               <span className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg text-xs md:text-sm">
-                <Calendar size={14}/> Joined Oct 2025
+                <Calendar size={14}/> Membre depuis Oct 2025
               </span>
             </div>
           </div>
@@ -89,11 +89,11 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
                className="flex-1 px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 hover:border-rose-200 transition-all font-bold text-sm flex items-center justify-center gap-3 active:scale-95"
              >
                <LogOut size={18} />
-               <span>Logout</span>
+               <span>Déconnexion</span>
              </button>
              <button className="flex-1 px-6 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-95">
                <Settings size={18} />
-               <span>Edit</span>
+               <span>Modifier</span>
              </button>
           </div>
         </div>
@@ -134,9 +134,9 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
           <div className="flex items-center justify-between mb-6">
              <div>
                <h3 className="font-bold text-slate-900 dark:text-white text-base">Simulation de Rôle</h3>
-               <p className="text-xs text-slate-500 mt-1">Test different operational perspectives.</p>
+               <p className="text-xs text-slate-500 mt-1">Tester différentes perspectives.</p>
              </div>
-             <span className="text-[10px] bg-indigo-500 text-white px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-lg shadow-indigo-500/20">Dev Mode</span>
+             <span className="text-[10px] bg-indigo-500 text-white px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-lg shadow-indigo-500/20">Mode Dev</span>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -162,8 +162,8 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
         <div className="bg-slate-100 dark:bg-slate-800/50 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-6">
              <div>
-               <h3 className="font-bold text-slate-900 dark:text-white text-base">Data Management</h3>
-               <p className="text-xs text-slate-500 mt-1">Secure local backup.</p>
+               <h3 className="font-bold text-slate-900 dark:text-white text-base">Gestion des Données</h3>
+               <p className="text-xs text-slate-500 mt-1">Sauvegarde locale sécurisée.</p>
              </div>
              <div className="p-2 bg-slate-200 dark:bg-slate-700 rounded-lg text-slate-500">
                 <Database size={18} />
@@ -176,14 +176,14 @@ export const UserProfileView: React.FC<UserProfileProps> = ({ name, role, onLogo
               className="flex-1 py-4 px-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95"
             >
               <Download size={16} />
-              Backup
+              Sauvegarder
             </button>
             <button 
               onClick={() => fileInputRef.current?.click()}
               className="flex-1 py-4 px-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition-all font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-95"
             >
               <Upload size={16} />
-              Restore
+              Restaurer
             </button>
             <input 
               type="file" 

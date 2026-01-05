@@ -75,7 +75,7 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
       // Snapshot current stats
       currentShift.avgPressure = currentShift.pressurePeaks.length 
         ? (currentShift.pressurePeaks.reduce((a:number, b:number) => a + b, 0) / currentShift.pressurePeaks.length).toFixed(1) 
-        : 'Active';
+        : 'Actif';
       shifts.push(currentShift);
     }
 
@@ -93,13 +93,13 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
           <div>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Archives</h2>
             <p className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
-              <History size={16} /> Service History ({filteredShifts.length})
+              <History size={16} /> Historique des Services ({filteredShifts.length})
             </p>
           </div>
 
           <div className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
              <div className="px-3 text-xs font-bold text-slate-400 flex items-center gap-2">
-               <Filter size={12} /> FILTER
+               <Filter size={12} /> FILTRER
              </div>
              {(['All', 'Chef', 'Service', 'Manager'] as const).map(role => (
                <button
@@ -112,7 +112,7 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
                      : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}
                  `}
                >
-                 {role}
+                 {role === 'All' ? 'Tout' : role}
                </button>
              ))}
           </div>
@@ -122,8 +122,8 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
           {filteredShifts.length === 0 && (
              <div className="text-center py-20 text-slate-500 bg-slate-100 dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800">
                <Activity size={48} className="mx-auto mb-4 opacity-20"/>
-               <p>No archived services found for <span className="font-bold">{filterRole}</span>.</p>
-               <p className="text-xs mt-2">Try adjusting the filter or complete more shifts.</p>
+               <p>Aucun service archivé pour <span className="font-bold">{filterRole}</span>.</p>
+               <p className="text-xs mt-2">Essayez d'ajuster le filtre ou terminez plus de services.</p>
              </div>
           )}
 
@@ -138,7 +138,7 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
             >
                {shift.isActive && (
                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-3xl uppercase tracking-wider flex items-center gap-1">
-                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"/> Live Now
+                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"/> En Direct
                  </div>
                )}
 
@@ -147,15 +147,15 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
                   {/* DATE & TIME */}
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700">
-                       <span className="text-xs font-bold uppercase">{new Date(shift.startTime).toLocaleDateString('en-US', { month: 'short' })}</span>
+                       <span className="text-xs font-bold uppercase">{new Date(shift.startTime).toLocaleDateString('fr-FR', { month: 'short' })}</span>
                        <span className="text-2xl font-bold text-slate-900 dark:text-white">{new Date(shift.startTime).getDate()}</span>
                     </div>
                     <div>
                        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                         {new Date(shift.startTime).toLocaleDateString('en-US', { weekday: 'long' })} Service
+                         Service du {new Date(shift.startTime).toLocaleDateString('fr-FR', { weekday: 'long' })}
                        </h3>
                        <div className="flex items-center gap-3 text-sm text-slate-500 mt-1">
-                         <span className="flex items-center gap-1"><Clock size={14}/> {new Date(shift.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {shift.isActive ? 'Now' : new Date(shift.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                         <span className="flex items-center gap-1"><Clock size={14}/> {new Date(shift.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {shift.isActive ? '...' : new Date(shift.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                          <span className="w-1 h-1 bg-slate-400 rounded-full"/>
                          <span>{formatDuration(shift.duration)}</span>
                        </div>
@@ -165,17 +165,17 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
                   {/* METRICS GRID (LOCAL STATS) */}
                   <div className="flex-1 w-full md:w-auto grid grid-cols-3 gap-2">
                      <div className="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center">
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Alerts</span>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Alertes</span>
                         <div className={`text-xl font-bold flex items-center gap-1 ${shift.alerts > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                           {shift.alerts > 0 && <AlertTriangle size={14}/>} {shift.alerts}
                         </div>
                      </div>
                      <div className="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center">
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Avg Press.</span>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Pression Moy.</span>
                         <div className="text-xl font-bold text-brand-500">{shift.avgPressure}</div>
                      </div>
                      <div className="bg-slate-50 dark:bg-slate-950/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center">
-                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Events</span>
+                        <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Événements</span>
                         <div className="text-xl font-bold text-slate-700 dark:text-slate-300">{shift.events.length}</div>
                      </div>
                   </div>
@@ -184,7 +184,7 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
                   <button 
                     onClick={() => onReplay(shift.id)}
                     className="hidden md:flex w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 items-center justify-center text-slate-400 hover:bg-indigo-500 hover:text-white hover:border-indigo-500 hover:scale-110 active:scale-95 transition-all shadow-lg shadow-indigo-500/0 hover:shadow-indigo-500/30"
-                    title="Enter Ghost Mode (Replay)"
+                    title="Entrer en Mode Replay"
                   >
                     <PlayCircle size={24} />
                   </button>

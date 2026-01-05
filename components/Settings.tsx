@@ -54,7 +54,7 @@ const DangerButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
       
       <div className="absolute inset-0 flex items-center justify-center gap-3 text-rose-500 group-hover:text-rose-400 font-bold z-10 mix-blend-screen">
         <Trash2 size={18} />
-        <span>{progress > 0 ? (progress >= 100 ? 'RESETTING...' : 'HOLD TO RESET') : 'FACTORY RESET'}</span>
+        <span>{progress > 0 ? (progress >= 100 ? 'RÉINITIALISATION...' : 'MAINTENIR POUR R.A.Z') : 'RÉINITIALISATION USINE'}</span>
       </div>
     </button>
   );
@@ -84,9 +84,9 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
     <div className="max-w-4xl mx-auto h-full flex flex-col pb-20 animate-in slide-in-from-bottom-8 duration-500">
       
       <header className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Control Room</h2>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Salle des Machines</h2>
         <p className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
-           <Activity size={16} /> System Configuration
+           <Activity size={16} /> Configuration Système
         </p>
       </header>
 
@@ -99,14 +99,14 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
               <Fingerprint size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white">Identity</h3>
-              <p className="text-xs text-slate-500">Local Display Name</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Identité</h3>
+              <p className="text-xs text-slate-500">Nom d'affichage local</p>
             </div>
           </div>
           
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Display Name</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 mb-2 block">Nom d'affichage</label>
               <div className="flex gap-2">
                 <input 
                   type="text" 
@@ -124,7 +124,7 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-400 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                <ShieldAlert size={14} />
-               <span>Role changes require re-login.</span>
+               <span>Changement de rôle nécessite reconnexion.</span>
             </div>
           </div>
         </div>
@@ -136,21 +136,21 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
               <HardDrive size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white">Data Sovereignty</h3>
-              <p className="text-xs text-slate-500">Local Storage: {storageSize}</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Souveraineté des Données</h3>
+              <p className="text-xs text-slate-500">Stockage Local : {storageSize}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Your data never leaves this device. You own the operational timeline. Export your full dataset as JSON for backup or analysis.
+              Vos données ne quittent jamais cet appareil. Vous possédez la timeline opérationnelle. Exportez le dataset JSON complet pour sauvegarde ou analyse.
             </p>
             <button 
               onClick={onExport}
               className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-slate-200 dark:border-slate-700"
             >
               <Download size={18} />
-              Export Full System JSON
+              Exporter Système Complet (JSON)
             </button>
           </div>
         </div>
@@ -162,13 +162,13 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
               <Smartphone size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white">Device Context</h3>
-              <p className="text-xs text-slate-500">Session Information</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Contexte Appareil</h3>
+              <p className="text-xs text-slate-500">Info Session</p>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-              <span className="text-xs font-bold text-slate-500">Platform</span>
+              <span className="text-xs font-bold text-slate-500">Plateforme</span>
               <span className="text-xs font-mono text-slate-900 dark:text-white">{navigator.platform}</span>
             </div>
             <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
@@ -185,14 +185,14 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
               <AlertTriangle size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-rose-600 dark:text-rose-400">Danger Zone</h3>
-              <p className="text-xs text-rose-500/70">Irreversible Actions</p>
+              <h3 className="font-bold text-rose-600 dark:text-rose-400">Zone de Danger</h3>
+              <p className="text-xs text-rose-500/70">Actions Irréversibles</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <p className="text-xs text-rose-600/80 dark:text-rose-400/80 leading-relaxed font-medium bg-rose-500/5 p-3 rounded-lg border border-rose-500/10">
-              Warning: Factory reset will wipe all events, shifts, and settings from this browser. This action cannot be undone.
+              Attention : La réinitialisation usine effacera tous les événements, services et réglages de ce navigateur. Cette action est irréversible.
             </p>
             <DangerButton onTrigger={onFactoryReset} />
           </div>

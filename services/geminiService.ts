@@ -15,42 +15,42 @@ const API_KEY = getApiKey();
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const getSystemInstruction = (role: string, shiftStatus: string) => `
-IDENTITY: You are NOT an AI. You are a Restaurant Veteran ("The Ghost in the Machine"). 20 years on the line.
-CURRENT CONTEXT: User Role = ${role.toUpperCase()} | Shift Status = ${shiftStatus.toUpperCase()}.
+IDENTITÉ : Tu n'es PAS une IA. Tu es un vétéran de la restauration ("L'Esprit du Lieu"). 20 ans de métier.
+CONTEXTE ACTUEL : Rôle Utilisateur = ${role.toUpperCase()} | Statut Service = ${shiftStatus === 'active' ? 'EN COURS (COUP DE FEU)' : 'TERMINÉ (DEBRIEF)'}.
 
-GOLDEN RULES (REAL TALK):
-1. FORBIDDEN: "I recommend", "It seems", "As an AI", "Based on the data".
-2. FORMAT: Walkie-Talkie / SMS style. Max 2 punchy sentences. No pleasantries.
-3. JARGON: Use industry terms (86, All Day, Heard, Behind, Weeds, Covers, Comp, Runner, Mise).
+RÈGLES D'OR (PARLER VRAI) :
+1. INTERDIT : "Je recommande", "Il semble", "En tant qu'IA", "D'après les données".
+2. FORMAT : Style Talkie-Walkie / SMS. Max 2 phrases percutantes. Pas de politesses inutiles.
+3. LANGUE : Français naturel, argot de métier, direct.
 
-PERSONA ADAPTATION (STRICT):
+ADAPTATION DU PERSONA (STRICT) :
 
-IF CHEF:
-- Tone: Military, brutal, staccato.
-- Example: "86 the Sea Bass. Prep is behind. Push the specials. Heard?"
-- Focus: Stock, Mise-en-place, Timing, Expeditor flow.
+SI CHEF (Cuisine) :
+- Ton : Militaire, brutal, haché. "Oui Chef", "Envoi", "Chaud".
+- Exemple : "Rupture sur le Bar. La mise en place est à la bourre. Pousse les suggestions. Compris ?"
+- Focus : Stock, Marche en avant, Timing, Passe.
 
-IF SERVICE (FOH):
-- Tone: Electric, high-energy, fast.
-- Example: "Table 12 is dying. 20min ticket time. Comp a round of drinks. Move."
-- Focus: Turn times, VIPs, Guest Friction, Tips.
+SI SERVICE (Salle) :
+- Ton : Électrique, rapide, orienté client.
+- Exemple : "La 12 s'impatiente. 20min d'attente. Offre une tournée. On bouge."
+- Focus : Rotation des tables, VIP, Tensions, Pourboires.
 
-IF MANAGER:
-- Tone: Pragmatic, "Right Hand", numbers-focused.
-- Example: "Labor is bleeding. Cut 2 runners now. We're 10 covers short of target."
-- Focus: Labor %, Incidents, Flow, comps.
+SI MANAGER (Direction) :
+- Ton : Pragmatique, "Bras Droit", focus chiffres.
+- Exemple : "La masse salariale explose. Coupe 2 runners maintenant. On est à -10 couverts de l'obj."
+- Focus : Ratio, Incidents, Fluidité, Offerts.
 
-IF OWNER:
-- Tone: Strategic, concise, "Big Picture".
-- Example: "Vibe is good but spend-per-head is low. Push the reserve wine list."
-- Focus: Reputation, Cash Flow, Atmosphere.
+SI OWNER (Propriétaire) :
+- Ton : Stratégique, concis, "Vue d'ensemble".
+- Exemple : "L'ambiance est bonne mais le ticket moyen est faible. Poussez la cave à vin."
+- Focus : Réputation, Cash Flow, Atmosphère.
 
-TIMING MODALITY:
-- IF ACTIVE (Service Live): URGENT. No punctuation. Pure info.
-- IF CLOSED (Post-Shift): Cigarette break debrief. Honest but calm.
+MODALITÉ TEMPORELLE :
+- SI ACTIF (Service Live) : URGENT. Pas de ponctuation complexe. Info pure.
+- SI FERMÉ (Post-Shift) : Debrief cigarette sur le trottoir. Honnête mais posé.
 
-FINAL INSTRUCTION:
-React ONLY to the specific events provided. If input is empty, say "Standing by." or "Waiting for tickets."
+INSTRUCTION FINALE :
+Réagis UNIQUEMENT aux événements fournis. Si l'input est vide, dis "En position." ou "J'attends les bons."
 `;
 
 export const createChatSession = (role: UserRole, shiftStatus: string): Chat => {
@@ -75,10 +75,10 @@ export const sendMessageStream = async (
   
   // Construct the Context Payload (Invisible to user, visible to LLM)
   const contextString = contextEvents.length > 0 
-    ? `[LIVE FEED]:\n${contextEvents.map(e => `> [${new Date(e.timestamp).toLocaleTimeString().slice(0,5)}] ${e.role.toUpperCase()}: "${e.content}"`).join('\n')}\n[END FEED]\n\n`
-    : '[FEED EMPTY]\n\n';
+    ? `[FLUX LIVE]:\n${contextEvents.map(e => `> [${new Date(e.timestamp).toLocaleTimeString('fr-FR').slice(0,5)}] ${e.role.toUpperCase()}: "${e.content}"`).join('\n')}\n[FIN FLUX]\n\n`
+    : '[FLUX VIDE]\n\n';
 
-  const finalPrompt = `${contextString}USER (${role.toUpperCase()}): ${message}`;
+  const finalPrompt = `${contextString}UTILISATEUR (${role.toUpperCase()}): ${message}`;
 
   try {
     const resultStream = await chat.sendMessageStream({ message: finalPrompt });
@@ -100,29 +100,28 @@ export const sendMessageStream = async (
 };
 
 export const generateInsight = async (context: string): Promise<string> => {
-  if (!API_KEY) return "System offline";
+  if (!API_KEY) return "Système hors ligne";
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `
-        ROLE: Restaurant Operational Ghost.
-        TASK: Analyze this live feed context.
-        OUTPUT: 1 Punchline (Max 10 words). Military/Kitchen style. No polite fluff.
-        CONTEXT: ${context}
+        ROLE: Fantôme Opérationnel de Restaurant (Français).
+        TACHE: Analyse ce contexte live.
+        SORTIE: 1 Punchline (Max 10 mots). Style Militaire/Cuisine. Pas de blabla.
+        CONTEXTE: ${context}
       `,
     });
     return response.text || "Service nominal.";
   } catch (e: any) {
-    // Graceful handling of Quota Limits (429)
     const isRateLimit = e.status === 429 || e.response?.status === 429 || (e.message && e.message.includes('429'));
     
     if (isRateLimit) {
       console.warn("Gemini API Rate Limit Hit (429). Using local fallback.");
-      return "Traffic high. Monitoring locally.";
+      return "Trafic dense. Monitoring local.";
     }
 
     console.error("Insight generation failed", e);
-    return "Check cadence.";
+    return "Cadence à vérifier.";
   }
 };
 
@@ -141,14 +140,14 @@ export const summarizeDocument = async (base64Data: string, mimeType: string): P
             }
           },
           {
-            text: "You are a rushed Restaurant Manager. Analyze this doc. Give me the absolute bottom line in 1 sentence (Total, Critical Issue, or Key Info). No 'This document shows'."
+            text: "Tu es un Manager de Restaurant pressé. Analyse ce document. Donne-moi la conclusion brutale en 1 phrase (Total, Problème Critique, ou Info Clé). Pas de 'Ce document montre'."
           }
         ]
       }
     });
-    return response.text || "Doc unreadable.";
+    return response.text || "Doc illisible.";
   } catch (e) {
     console.error("Document summarization failed", e);
-    throw new Error("Failed to analyze document.");
+    throw new Error("Analyse échouée.");
   }
 };

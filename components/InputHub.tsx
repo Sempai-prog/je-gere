@@ -16,31 +16,31 @@ interface InputHubProps {
 // --- PRESET ENGINE (Gradient & Shadow enhanced) ---
 const ROLE_PRESETS: Record<string, Array<{ label: string; icon: any; type: EventType; content: string; color: string; pressure?: number }>> = {
   Chef: [
-    { label: 'Rupture Stock', icon: PackageX, type: EventType.ALERT, content: 'CRITICAL: Stock rupture on key item.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
-    { label: 'Retard Bon', icon: Clock, type: EventType.LOG, content: 'DELAY: Kitchen output slowed.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30' },
-    { label: 'Pression Max', icon: Flame, type: EventType.SIGNAL, content: 'Kitchen pressure at MAXIMUM.', color: 'from-orange-500 to-orange-600 shadow-orange-500/30', pressure: 9 },
-    { label: 'Service OK', icon: CheckCircle2, type: EventType.SIGNAL, content: 'Service flow stabilized.', color: 'from-emerald-500 to-emerald-600 shadow-emerald-500/30', pressure: 4 },
+    { label: 'Rupture (86)', icon: PackageX, type: EventType.ALERT, content: 'CRITICAL: Rupture de stock (86) sur produit clé.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
+    { label: 'Retard Bon', icon: Clock, type: EventType.LOG, content: 'DELAY: La cuisine prend du retard.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30' },
+    { label: 'Coup de Feu', icon: Flame, type: EventType.SIGNAL, content: 'Cuisine sous pression MAX.', color: 'from-orange-500 to-orange-600 shadow-orange-500/30', pressure: 9 },
+    { label: 'Ça déroule', icon: CheckCircle2, type: EventType.SIGNAL, content: 'Service fluide en cuisine.', color: 'from-emerald-500 to-emerald-600 shadow-emerald-500/30', pressure: 4 },
   ],
   Service: [
-    { label: 'Client Mécontent', icon: AlertOctagon, type: EventType.ALERT, content: 'COMPLAINT: Manager needed.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
-    { label: 'VIP Arrived', icon: Star, type: EventType.LOG, content: 'VIP Guests seated.', color: 'from-purple-500 to-purple-600 shadow-purple-500/30' },
-    { label: 'Table Clean', icon: UtensilsCrossed, type: EventType.LOG, content: 'Table cleared.', color: 'from-blue-500 to-blue-600 shadow-blue-500/30' },
-    { label: 'Rushed', icon: Users, type: EventType.SIGNAL, content: 'Floor overwhelmed.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30', pressure: 8 },
+    { label: 'Client Difficile', icon: AlertOctagon, type: EventType.ALERT, content: 'COMPLAINT: Besoin Manager en salle.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
+    { label: 'VIP Installé', icon: Star, type: EventType.LOG, content: 'VIP à table.', color: 'from-purple-500 to-purple-600 shadow-purple-500/30' },
+    { label: 'Table Dressée', icon: UtensilsCrossed, type: EventType.LOG, content: 'Table redressée.', color: 'from-blue-500 to-blue-600 shadow-blue-500/30' },
+    { label: 'Dans le Jus', icon: Users, type: EventType.SIGNAL, content: 'La salle est débordée.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30', pressure: 8 },
   ],
   Manager: [
-    { label: 'Staff Cut', icon: Users, type: EventType.LOG, content: 'Cutting staff.', color: 'from-slate-600 to-slate-700 shadow-slate-500/30' },
-    { label: 'Incident', icon: AlertTriangle, type: EventType.ALERT, content: 'Incident logged.', color: 'from-rose-600 to-rose-700 shadow-rose-500/30' },
+    { label: 'Coupe Staff', icon: Users, type: EventType.LOG, content: 'Réduction du personnel (Cut).', color: 'from-slate-600 to-slate-700 shadow-slate-500/30' },
+    { label: 'Incident', icon: AlertTriangle, type: EventType.ALERT, content: 'Incident signalé.', color: 'from-rose-600 to-rose-700 shadow-rose-500/30' },
   ],
   Owner: [
-    { label: 'Observation', icon: ChefHat, type: EventType.LOG, content: 'General observation.', color: 'from-indigo-600 to-indigo-700 shadow-indigo-500/30' },
+    { label: 'Observation', icon: ChefHat, type: EventType.LOG, content: 'Observation générale.', color: 'from-indigo-600 to-indigo-700 shadow-indigo-500/30' },
   ]
 };
 
 const MOCK_TRANSCRIPTS: Record<string, string[]> = {
-  Chef: ["We are running low on sea bass.", "Prep team is behind.", "Dishwasher acting up."],
-  Service: ["Table 12 loved the special.", "Need a runner for patio.", "Hair in salad, comping meal."],
-  Manager: ["Shift briefing complete.", "Health inspector here.", "Bar inventory off."],
-  Owner: ["Atmosphere good.", "Review contracts.", "Staff energy low."]
+  Chef: ["On est court sur le Bar.", "La mise en place est à la bourre.", "La plonge est en galère."],
+  Service: ["La 12 a adoré la suggestion.", "Besoin d'un runner en terrasse !", "Erreur de cuisson, je fais un retour."],
+  Manager: ["Briefing équipe terminé.", "Contrôle hygiène inopiné.", "Erreur stock bar."],
+  Owner: ["Bonne ambiance ce soir.", "Faut revoir les contrats.", "L'équipe manque de peps."]
 };
 
 export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => {
@@ -72,7 +72,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
     addEvent(newEvent);
     
     // Tactile Feedback (Vibration + Visual)
-    setFeedback(`${type.toUpperCase()} SENT`);
+    setFeedback(`${type.toUpperCase()} ENVOYÉ`);
     if (navigator.vibrate) navigator.vibrate(50);
   };
 
@@ -90,7 +90,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
       setTimeout(() => {
         const roleTranscripts = MOCK_TRANSCRIPTS[currentRole] || MOCK_TRANSCRIPTS['Manager'];
         const randomTranscript = roleTranscripts[Math.floor(Math.random() * roleTranscripts.length)];
-        handleSubmit(EventType.AUDIO, `🎤 Transcription: "${randomTranscript}"`, { 
+        handleSubmit(EventType.AUDIO, `🎤 Transcription : "${randomTranscript}"`, { 
           audioLength: Math.floor(Math.random() * 10) + 2, transcriptionConfidence: 0.95 
         });
         setIsTranscribing(false);
@@ -108,7 +108,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
     try {
       // Mock processing for UI feeling
       setTimeout(() => {
-        handleSubmit(EventType.LOG, `📄 Analyzed: ${file.name}`, { tags: ['document'] });
+        handleSubmit(EventType.LOG, `📄 Analysé : ${file.name}`, { tags: ['document'] });
         setIsProcessingDoc(false);
       }, 1500);
     } catch (error) { setIsProcessingDoc(false); }
@@ -128,9 +128,9 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
        )}
 
        <header className="mb-6 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Input Hub</h2>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Saisie Express</h2>
           <div className="flex items-center justify-center gap-2">
-            <span className="text-slate-500 dark:text-slate-400 font-medium text-sm">Active Channel:</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium text-sm">Canal Actif :</span>
             <span className="font-bold text-brand-500 uppercase bg-brand-500/10 px-3 py-0.5 rounded-full text-xs tracking-wider border border-brand-500/20">{currentRole}</span>
           </div>
        </header>
@@ -164,7 +164,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                 {/* Audio Button (Pulsing) */}
                 <div className="flex-1">
                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                     <Mic size={12} /> Vocal Log
+                     <Mic size={12} /> Note Vocale
                    </h3>
                    <button
                      onClick={handleAudioToggle}
@@ -181,11 +181,11 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                      {isRecording && <div className="absolute inset-0 bg-rose-400/20 animate-ping"></div>}
                      
                      {isTranscribing ? (
-                       <><Loader2 size={24} className="animate-spin" /><span className="text-xs font-bold">PROCESSING...</span></>
+                       <><Loader2 size={24} className="animate-spin" /><span className="text-xs font-bold">TRAITEMENT...</span></>
                      ) : isRecording ? (
-                       <><StopCircle size={32} /><span className="text-xs font-bold">STOP RECORDING</span></>
+                       <><StopCircle size={32} /><span className="text-xs font-bold">STOPPER</span></>
                      ) : (
-                       <><Mic size={24} /><span className="text-xs font-bold">TAP TO SPEAK</span></>
+                       <><Mic size={24} /><span className="text-xs font-bold">APPUYER POUR PARLER</span></>
                      )}
                    </button>
                 </div>
@@ -194,7 +194,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                 <div className="flex-1">
                    <div className="flex justify-between items-center mb-3">
                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <Flame size={12} /> Pressure
+                        <Flame size={12} /> Tension
                      </h3>
                      <span className={`text-xl font-black ${pressure > 7 ? 'text-rose-500' : 'text-brand-500'}`}>{pressure}<span className="text-sm font-medium text-slate-400">/10</span></span>
                    </div>
@@ -207,10 +207,10 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                      className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mb-6 hover:opacity-100 opacity-80 transition-opacity"
                    />
                    <button 
-                      onClick={() => handleSubmit(EventType.SIGNAL, `Pressure update: ${pressure}/10`, { pressure })}
+                      onClick={() => handleSubmit(EventType.SIGNAL, `Mise à jour Tension : ${pressure}/10`, { pressure })}
                       className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl text-sm font-bold transition-all active:scale-95 border border-transparent hover:border-slate-300 dark:hover:border-slate-600"
                    >
-                     Log Pressure
+                     Logger la Tension
                    </button>
                 </div>
              </div>
@@ -234,7 +234,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                type="text"
                value={inputText}
                onChange={(e) => setInputText(e.target.value)}
-               placeholder={`Report for ${currentRole}...`}
+               placeholder={`Entrée pour ${currentRole}...`}
                className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-400 h-12 px-2 font-medium"
                onKeyDown={(e) => e.key === 'Enter' && (handleSubmit(EventType.LOG, inputText), setInputText(''))}
              />
