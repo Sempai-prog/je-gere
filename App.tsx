@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ListVideo, Radio, Sparkles, Bell, Sun, Moon, Settings as SettingsIcon, Archive, History, LogOut } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { LayoutDashboard, ListVideo, Radio, Sparkles, Bell, Sun, Moon, Settings as SettingsIcon, Archive, History, LogOut, SkipBack, Rewind } from 'lucide-react';
 import { Dashboard } from './components/Dashboard';
 import { EventTimeline } from './components/TaskBoard';
 import { InputHub } from './components/InputHub';
@@ -9,7 +9,7 @@ import { LandingPage } from './components/LandingPage';
 import { ParticlesBackground } from './components/Particles';
 import { UserProfileView } from './components/UserProfile';
 import { ArchiveView } from './components/Archive';
-import { SettingsView } from './components/Settings'; // New Import
+import { SettingsView } from './components/Settings';
 import { OperationalEvent, ViewState, EventType, Shift } from './types';
 import { generateInsight } from './services/geminiService';
 import { UserProvider, useUser } from './context/UserContext';
@@ -34,7 +34,6 @@ function useStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<Rea
 }
 
 // --- MAIN CONTENT COMPONENT ---
-// Separated to consume the UserContext provided by App
 const AppContent: React.FC = () => {
   const { user, login, logout, updateRole } = useUser();
   
@@ -43,6 +42,9 @@ const AppContent: React.FC = () => {
   const [events, setEvents] = useStickyState<OperationalEvent[]>([], 'jg_events');
   const [currentShift, setCurrentShift] = useStickyState<Shift | null>(null, 'jg_current_shift');
   const [theme, setTheme] = useStickyState<'dark' | 'light'>('dark', 'jg_theme');
+
+  // TIME MACHINE STATE
+  const [viewingShiftId, setViewingShiftId] = useState<string | null>(null);
 
   const [systemInsight, setSystemInsight] = useState<string>("Initializing intelligence...");
 
@@ -63,6 +65,33 @@ const AppContent: React.FC = () => {
     return () => clearTimeout(timer);
   }, [events]);
 
+  // --- GHOST MODE LOGIC (DATA RECONSTRUCTION) ---
+  const { activeEvents, activeShift, isReplayMode } = useMemo(() => {
+    if (viewingShiftId) {
+      // REPLAY MODE: Filter events and simulate a shift object
+      const historicalEvents = events.filter(e => e.shiftId === viewingShiftId);
+      const ghostShift: Shift = {
+        id: viewingShiftId,
+        startTime: historicalEvents[0]?.timestamp || 0,
+        endTime: historicalEvents[historicalEvents.length - 1]?.timestamp,
+        status: 'closed', // It's history, so it's closed
+        startedBy: 'System' as any
+      };
+      return { 
+        activeEvents: historicalEvents, 
+        activeShift: ghostShift,
+        isReplayMode: true 
+      };
+    } else {
+      // LIVE MODE
+      return { 
+        activeEvents: events, 
+        activeShift: currentShift,
+        isReplayMode: false 
+      };
+    }
+  }, [viewingShiftId, events, currentShift]);
+
   const addEvent = (event: OperationalEvent) => {
     const eventWithContext = {
       ...event,
@@ -78,6 +107,18 @@ const AppContent: React.FC = () => {
   const handleLogout = () => {
     logout();
     setCurrentView('dashboard');
+    setViewingShiftId(null);
+  };
+
+  // --- REPLAY CONTROLLERS ---
+  const handleReplay = (shiftId: string) => {
+    setViewingShiftId(shiftId);
+    setCurrentView('dashboard'); // Jump to dashboard to see stats
+  };
+
+  const exitReplay = () => {
+    setViewingShiftId(null);
+    setCurrentView('archive'); // Go back to list
   };
 
   // --- DATA BACKUP & EXPORT (SYSTEM LEVEL) ---
@@ -126,13 +167,10 @@ const AppContent: React.FC = () => {
 
   // --- FACTORY RESET ---
   const handleFactoryReset = () => {
-    // 1. Clear LocalStorage
     window.localStorage.clear();
-    // 2. Clear Session State (Optional, but reload handles it)
     setEvents([]);
     setCurrentShift(null);
     logout();
-    // 3. Hard Reload to clear in-memory states and hooks
     window.location.reload();
   };
 
@@ -180,15 +218,15 @@ const AppContent: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': 
-        return <Dashboard events={events} currentShift={currentShift} onToggleService={handleToggleService} userRole={user.role} />;
+        return <Dashboard events={activeEvents} currentShift={activeShift} onToggleService={handleToggleService} userRole={user.role} isReplayMode={isReplayMode} />;
       case 'timeline': 
-        return <EventTimeline events={events} />;
+        return <EventTimeline events={activeEvents} />;
       case 'inputs': 
         return <InputHub addEvent={addEvent} currentRole={user.role} />;
       case 'archive':
-        return <ArchiveView events={events} userRole={user.role} />;
+        return <ArchiveView events={events} userRole={user.role} onReplay={handleReplay} />;
       case 'assistant': 
-        return <Assistant events={events} currentRole={user.role} currentShift={currentShift} />;
+        return <Assistant events={activeEvents} currentRole={user.role} currentShift={activeShift} />;
       case 'profile': 
         return (
           <UserProfileView 
@@ -203,7 +241,7 @@ const AppContent: React.FC = () => {
       case 'settings':
         return <SettingsView onExport={handleExportData} onFactoryReset={handleFactoryReset} />;
       default: 
-        return <Dashboard events={events} currentShift={currentShift} onToggleService={handleToggleService} userRole={user.role} />;
+        return <Dashboard events={activeEvents} currentShift={activeShift} onToggleService={handleToggleService} userRole={user.role} isReplayMode={isReplayMode} />;
     }
   };
 
@@ -253,6 +291,7 @@ const AppContent: React.FC = () => {
               onClick={() => setCurrentView('inputs')} 
               icon={<Radio size={20} />} 
               label="Input Hub" 
+              disabled={isReplayMode} // Disable Input in Replay
             />
             <div className="pt-4 pb-2">
                <div className="h-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
@@ -278,9 +317,9 @@ const AppContent: React.FC = () => {
            {/* Insight Box */}
           <div className="hidden lg:block p-4 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <div className="flex items-center gap-2 mb-2">
-               <div className={`w-2 h-2 rounded-full ${currentShift?.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></div>
+               <div className={`w-2 h-2 rounded-full ${activeShift?.status === 'active' ? 'bg-emerald-500 animate-pulse' : isReplayMode ? 'bg-amber-500' : 'bg-slate-400'}`}></div>
                <p className="text-[10px] uppercase font-bold text-slate-400">
-                 {currentShift?.status === 'active' ? 'AI Analysis' : 'System Offline'}
+                 {isReplayMode ? 'TIME MACHINE' : activeShift?.status === 'active' ? 'AI Analysis' : 'System Offline'}
                </p>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">"{systemInsight}"</p>
@@ -321,6 +360,19 @@ const AppContent: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden">
         
+        {/* GHOST MODE BANNER (Sticky Overlay) */}
+        {isReplayMode && (
+          <div className="w-full bg-amber-500 text-slate-900 font-bold text-xs uppercase tracking-widest flex items-center justify-between px-4 py-2 shadow-lg z-50">
+             <div className="flex items-center gap-2">
+                <Rewind size={16} className="animate-spin-slow" />
+                <span>Ghost Mode Active: {new Date(activeShift?.startTime || 0).toLocaleDateString()}</span>
+             </div>
+             <button onClick={exitReplay} className="bg-slate-900 text-white px-3 py-1 rounded hover:bg-slate-800 transition-colors">
+               Return to Live
+             </button>
+          </div>
+        )}
+
         {/* Mobile Header (Updated) */}
         <header className="md:hidden h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-10 sticky top-0">
           <div className="flex items-center gap-3">
@@ -329,10 +381,16 @@ const AppContent: React.FC = () => {
              </div>
              <div className="flex flex-col justify-center">
                 <span className="font-bold text-slate-900 dark:text-white text-sm leading-none">Je gère</span>
-                {currentShift?.status === 'active' && (
+                {activeShift?.status === 'active' && (
                   <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>
                     LIVE
+                  </span>
+                )}
+                {isReplayMode && (
+                  <span className="text-[10px] text-amber-500 font-bold flex items-center gap-1 mt-0.5">
+                    <History size={10} />
+                    REPLAY
                   </span>
                 )}
              </div>
@@ -348,7 +406,7 @@ const AppContent: React.FC = () => {
         <header className="hidden md:flex h-20 border-b border-slate-200 dark:border-slate-800 items-center justify-between px-10 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-10">
           <div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              {currentView === 'dashboard' && 'Control Center'}
+              {currentView === 'dashboard' && (isReplayMode ? 'Historical Analysis' : 'Control Center')}
               {currentView === 'timeline' && 'Operational Feed'}
               {currentView === 'inputs' && 'Input Hub'}
               {currentView === 'archive' && 'Service Archive'}
@@ -358,10 +416,15 @@ const AppContent: React.FC = () => {
             </h1>
             <p className="text-xs text-slate-500 flex items-center gap-2">
                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-               {currentShift?.status === 'active' ? (
+               {activeShift?.status === 'active' ? (
                  <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded text-xs font-bold">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/>
                     Active
+                 </span>
+               ) : isReplayMode ? (
+                 <span className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded text-xs font-bold">
+                    <Rewind size={10}/>
+                    Replay
                  </span>
                ) : (
                  <span className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-xs font-bold">
@@ -380,7 +443,7 @@ const AppContent: React.FC = () => {
              </button>
              <button className="relative p-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                <Bell size={20} />
-               {events.some(e => e.type === EventType.ALERT) && (
+               {activeEvents.some(e => e.type === EventType.ALERT) && (
                  <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950"></span>
                )}
              </button>
@@ -396,7 +459,7 @@ const AppContent: React.FC = () => {
         <nav className="md:hidden h-20 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-around px-4 pb-2 z-20 sticky bottom-0 safe-area-bottom shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
             <MobileNavButton active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} icon={<LayoutDashboard size={24} />} />
             <MobileNavButton active={currentView === 'timeline'} onClick={() => setCurrentView('timeline')} icon={<ListVideo size={24} />} />
-            <MobileNavButton active={currentView === 'inputs'} onClick={() => setCurrentView('inputs')} icon={<Radio size={24} />} />
+            <MobileNavButton active={currentView === 'inputs'} onClick={() => setCurrentView('inputs')} icon={<Radio size={24} />} disabled={isReplayMode} />
             <MobileNavButton active={currentView === 'archive'} onClick={() => setCurrentView('archive')} icon={<History size={24} />} />
             <MobileNavButton active={currentView === 'assistant'} onClick={() => setCurrentView('assistant')} icon={<Sparkles size={24} />} activeColor="text-brand-500" />
             <MobileNavButton active={currentView === 'settings'} onClick={() => setCurrentView('settings')} icon={<SettingsIcon size={24} />} />
@@ -407,15 +470,17 @@ const AppContent: React.FC = () => {
   );
 };
 
-const NavButton = ({ active, onClick, icon, label, highlight }: any) => (
+const NavButton = ({ active, onClick, icon, label, highlight, disabled }: any) => (
   <button 
     onClick={onClick}
+    disabled={disabled}
     className={`
       w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-3.5 rounded-2xl transition-all duration-200 group font-medium
       ${active 
         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-900/10' 
         : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'}
       ${highlight && !active ? 'text-indigo-500 hover:text-indigo-600' : ''}
+      ${disabled ? 'opacity-30 cursor-not-allowed hover:bg-transparent hover:text-slate-500' : ''}
     `}
   >
     <span className={`${active ? '' : 'group-hover:scale-110'} transition-transform duration-200`}>{icon}</span>
@@ -423,10 +488,11 @@ const NavButton = ({ active, onClick, icon, label, highlight }: any) => (
   </button>
 );
 
-const MobileNavButton = ({ active, onClick, icon, activeColor = 'text-slate-900 dark:text-white' }: any) => (
+const MobileNavButton = ({ active, onClick, icon, activeColor = 'text-slate-900 dark:text-white', disabled }: any) => (
   <button 
     onClick={onClick}
-    className={`p-4 rounded-2xl transition-all duration-200 ${active ? `bg-slate-100 dark:bg-slate-800 ${activeColor} scale-110` : 'text-slate-400'}`}
+    disabled={disabled}
+    className={`p-4 rounded-2xl transition-all duration-200 ${active ? `bg-slate-100 dark:bg-slate-800 ${activeColor} scale-110` : 'text-slate-400'} ${disabled ? 'opacity-30' : ''}`}
   >
     {icon}
   </button>

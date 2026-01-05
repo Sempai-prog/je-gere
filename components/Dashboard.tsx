@@ -4,7 +4,7 @@ import { AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YA
 import { 
   Users, AlertTriangle, TrendingUp, Activity, Thermometer, Play, 
   Zap, Lock, ChefHat, UtensilsCrossed, Euro, ClipboardList, Clock, 
-  Armchair, Ban, AlertOctagon
+  Armchair, Ban, AlertOctagon, History
 } from 'lucide-react';
 import { OperationalEvent, EventType, Shift, UserRole } from '../types';
 
@@ -13,6 +13,7 @@ interface DashboardProps {
   currentShift: Shift | null;
   onToggleService: () => void;
   userRole: UserRole;
+  isReplayMode?: boolean; // New prop for Time Machine
 }
 
 // --- 1. WIDGET WRAPPER (GLASSMORPHISM) ---
@@ -223,13 +224,18 @@ const AlertsWidget: React.FC<{ alerts: any[] }> = ({ alerts }) => (
 
 // --- 3. MAIN DASHBOARD ---
 
-export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onToggleService, userRole }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onToggleService, userRole, isReplayMode = false }) => {
   const isServiceActive = currentShift?.status === 'active';
   
   // Contextual Data Processing
-  const relevantEvents = useMemo(() => isServiceActive 
-    ? events.filter(e => e.shiftId === currentShift?.id)
-    : events, [isServiceActive, events, currentShift]);
+  // In Replay Mode, we want to show all events from the past shift, so we assume 'isServiceActive' logic applies for data filtering purposes
+  // even if the shift status is actually 'closed'.
+  const relevantEvents = useMemo(() => {
+    if (isReplayMode) return events; // Already filtered by parent
+    return isServiceActive 
+      ? events.filter(e => e.shiftId === currentShift?.id)
+      : events;
+  }, [isServiceActive, events, currentShift, isReplayMode]);
 
   const activeAlerts = relevantEvents.filter(e => e.type === EventType.ALERT);
   
@@ -306,16 +312,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
       {/* HEADER */}
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Live Service</h2>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
+            {isReplayMode ? 'Ghost Mode' : 'Live Service'}
+          </h2>
           <div className="flex items-center gap-2">
-             <p className="text-slate-500 dark:text-slate-400 font-medium">Operational Dashboard</p>
-             <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-mono uppercase border border-slate-300 dark:border-slate-700">
+             <p className="text-slate-500 dark:text-slate-400 font-medium">{isReplayMode ? 'Historical Playback' : 'Operational Dashboard'}</p>
+             <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase border ${isReplayMode ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'}`}>
                MODULE: {userRole}
              </span>
           </div>
         </div>
         
-        {['Manager', 'Owner', 'Chef'].includes(userRole) && (
+        {/* Start/Stop Button - Hidden in Replay Mode */}
+        {['Manager', 'Owner', 'Chef'].includes(userRole) && !isReplayMode && (
           <button 
             onClick={onToggleService}
             className={`
@@ -331,7 +340,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
         )}
       </header>
 
-      {!isServiceActive && (
+      {/* SERVICE CLOSED / REPLAY BANNER */}
+      {!isServiceActive && !isReplayMode && (
         <div className="bg-slate-100/50 dark:bg-slate-800/30 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 p-4 rounded-2xl flex items-center justify-center text-slate-500 text-sm mb-4 animate-in fade-in zoom-in duration-500">
           <Lock size={14} className="mr-2 opacity-50"/>
           <span>Service is closed. Dashboard in review mode.</span>
@@ -339,7 +349,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
       )}
 
       {/* DYNAMIC GRID RENDER */}
-      <div className={`transition-all duration-700 ${!isServiceActive ? 'opacity-80 grayscale-[0.3]' : ''}`}>
+      {/* In Replay Mode, we remove opacity and grayscale to allow clear analysis */}
+      <div className={`transition-all duration-700 ${!isServiceActive && !isReplayMode ? 'opacity-80 grayscale-[0.3]' : ''}`}>
         {renderLayout()}
       </div>
     </div>

@@ -1,11 +1,12 @@
 
 import React, { useMemo, useState } from 'react';
-import { Calendar, Clock, AlertTriangle, TrendingUp, ChevronRight, Activity, Map, History, Filter } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, TrendingUp, ChevronRight, Activity, Map, History, Filter, PlayCircle } from 'lucide-react';
 import { OperationalEvent, Shift, EventType, UserRole } from '../types';
 
 interface ArchiveProps {
   events: OperationalEvent[];
   userRole: UserRole;
+  onReplay: (shiftId: string) => void;
 }
 
 // Helper for duration formatting
@@ -15,7 +16,7 @@ const formatDuration = (ms: number) => {
   return hours > 0 ? `${hours}h ${minutes % 60}m` : `${minutes}m`;
 };
 
-export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole }) => {
+export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay }) => {
   const [filterRole, setFilterRole] = useState<UserRole | 'All'>(
     ['Owner', 'Manager'].includes(userRole) ? 'All' : userRole
   );
@@ -180,8 +181,12 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole }) => {
                   </div>
 
                   {/* ACTION */}
-                  <button className="hidden md:flex w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 items-center justify-center text-slate-400 group-hover:bg-indigo-500 group-hover:text-white group-hover:border-indigo-500 transition-all">
-                    <ChevronRight size={20} />
+                  <button 
+                    onClick={() => onReplay(shift.id)}
+                    className="hidden md:flex w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 items-center justify-center text-slate-400 hover:bg-indigo-500 hover:text-white hover:border-indigo-500 hover:scale-110 active:scale-95 transition-all shadow-lg shadow-indigo-500/0 hover:shadow-indigo-500/30"
+                    title="Enter Ghost Mode (Replay)"
+                  >
+                    <PlayCircle size={24} />
                   </button>
                </div>
 
