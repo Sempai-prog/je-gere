@@ -1,0 +1,7 @@
+{
+  "name": "Je gère",
+  "description": "Operational intelligence platform for restaurants. Understanding the reality of service through human input and AI analysis.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
