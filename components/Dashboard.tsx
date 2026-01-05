@@ -49,6 +49,8 @@ const Widget: React.FC<{
 // --- 2. SPECIFIC WIDGETS ---
 
 // A. SERVICE PACE (Chart) - ADAPTIVE
+// Financials = Chartreuse (Money)
+// Covers = Porcelain (Blue/Green)
 const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({ data, showFinancials }) => (
   <Widget className="col-span-1 md:col-span-2 md:row-span-2" delay={100}>
     <div className="flex justify-between items-start mb-4 z-10">
@@ -65,7 +67,7 @@ const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({
            </span>
         </div>
       </div>
-      <div className="p-3 bg-brand-500/10 rounded-2xl text-brand-600 dark:text-brand-400">
+      <div className={`p-3 rounded-2xl ${showFinancials ? 'bg-emerald-500/10 text-emerald-500' : 'bg-indigo-500/10 text-indigo-500'}`}>
         <TrendingUp size={24} />
       </div>
     </div>
@@ -74,19 +76,19 @@ const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({
         <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorMain" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={showFinancials ? '#10b981' : '#6366f1'} stopOpacity={0.4}/>
-              <stop offset="95%" stopColor={showFinancials ? '#10b981' : '#6366f1'} stopOpacity={0}/>
+              <stop offset="5%" stopColor={showFinancials ? '#c3f609' : '#00ff99'} stopOpacity={0.4}/>
+              <stop offset="95%" stopColor={showFinancials ? '#c3f609' : '#00ff99'} stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.1} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#033863" opacity={0.2} />
           <Tooltip 
-            contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#334155', borderRadius: '12px', color: '#f8fafc' }} 
-            itemStyle={{ color: showFinancials ? '#34d399' : '#818cf8' }} 
+            contentStyle={{ backgroundColor: 'rgba(1, 28, 50, 0.9)', backdropFilter: 'blur(8px)', borderColor: '#033863', borderRadius: '12px', color: '#f8fafc' }} 
+            itemStyle={{ color: showFinancials ? '#c3f609' : '#00ff99' }} 
           />
           <Area 
             type="monotone" 
             dataKey={showFinancials ? "revenue" : "covers"} 
-            stroke={showFinancials ? '#10b981' : '#6366f1'} 
+            stroke={showFinancials ? '#c3f609' : '#00ff99'} 
             strokeWidth={4} 
             fillOpacity={1} 
             fill="url(#colorMain)" 
@@ -100,7 +102,7 @@ const ServicePaceWidget: React.FC<{ data: any[], showFinancials: boolean }> = ({
 
 // B. FINANCIAL PULSE (Manager/Owner Only)
 const FinancialPulseWidget: React.FC = () => (
-  <Widget className="bg-emerald-500/5 border-emerald-500/20" delay={50} title="Finances" icon={Euro} color="text-emerald-600 dark:text-emerald-400">
+  <Widget className="bg-emerald-500/5 border-emerald-500/20" delay={50} title="Finances" icon={Euro} color="text-emerald-500">
      <div className="space-y-4">
        <div>
          <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">28%</div>
@@ -112,7 +114,7 @@ const FinancialPulseWidget: React.FC = () => (
        <div className="pt-4 border-t border-emerald-500/10">
          <div className="flex justify-between items-center mb-1">
            <span className="text-xs text-slate-500 font-bold">Ticket Moyen</span>
-           <span className="text-xs font-mono font-bold text-emerald-600">42,50 €</span>
+           <span className="text-xs font-mono font-bold text-emerald-500">42,50 €</span>
          </div>
          <div className="flex justify-between items-center">
            <span className="text-xs text-slate-500 font-bold">Offerts/Pertes</span>
@@ -124,6 +126,7 @@ const FinancialPulseWidget: React.FC = () => (
 );
 
 // C. KITCHEN OPTICS (Chef Specific)
+// Use Oxblood (Rose) for heat/pressure
 const KitchenOpticsWidget: React.FC = () => (
   <Widget className="row-span-2" delay={150} title="Le Passe" icon={ChefHat} color="text-slate-500">
      <div className="space-y-6 h-full flex flex-col">
@@ -163,16 +166,17 @@ const KitchenOpticsWidget: React.FC = () => (
 );
 
 // D. FLOOR METRIX (Service Specific)
+// Use Porcelain (Indigo) or Tangerine (Amber) for floor status
 const FloorMetrixWidget: React.FC = () => (
   <Widget delay={150} title="État de la Salle" icon={Armchair} color="text-indigo-500">
      <div className="grid grid-cols-2 gap-4">
        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
-          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">45m</div>
+          <div className="text-2xl font-bold text-indigo-500">45m</div>
           <div className="text-[10px] text-indigo-400 font-bold uppercase">Rotation Moy.</div>
        </div>
-       <div className="bg-purple-50 dark:bg-purple-900/10 p-3 rounded-xl border border-purple-100 dark:border-purple-800/30">
-          <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">3</div>
-          <div className="text-[10px] text-purple-400 font-bold uppercase">Tables VIP</div>
+       <div className="bg-amber-50 dark:bg-amber-900/10 p-3 rounded-xl border border-amber-100 dark:border-amber-800/30">
+          <div className="text-2xl font-bold text-amber-500">3</div>
+          <div className="text-[10px] text-amber-500 font-bold uppercase">Tables VIP</div>
        </div>
      </div>
      <div className="mt-4">
@@ -317,7 +321,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
           </h2>
           <div className="flex items-center gap-2">
              <p className="text-slate-500 dark:text-slate-400 font-medium">{isReplayMode ? 'Lecture Historique' : 'Tableau de Bord Opérationnel'}</p>
-             <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase border ${isReplayMode ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'}`}>
+             <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase border ${isReplayMode ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 border-slate-300 dark:border-slate-700'}`}>
                MODULE : {userRole}
              </span>
           </div>
@@ -330,7 +334,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
             className={`
               relative overflow-hidden group flex items-center justify-center gap-3 px-8 py-3 rounded-2xl text-sm font-bold border transition-all duration-300 shadow-xl w-full md:w-auto
               ${isServiceActive 
-                ? 'bg-emerald-500 text-white border-emerald-400 hover:bg-emerald-400 shadow-emerald-500/20 active:scale-95' 
+                ? 'bg-emerald-500 text-slate-900 border-emerald-400 hover:bg-emerald-400 shadow-emerald-500/20 active:scale-95' 
                 : 'bg-slate-900 dark:bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-800 hover:border-slate-600 active:scale-95'}
             `}
           >

@@ -41,7 +41,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       
       {/* LOGO & BRAND */}
       <div className="mb-12 space-y-4">
-        <div className="w-20 h-20 bg-white text-slate-950 rounded-3xl flex items-center justify-center text-4xl font-bold shadow-2xl shadow-indigo-500/20 mx-auto rotate-3 hover:rotate-0 transition-transform duration-500">
+        <div className="w-20 h-20 bg-indigo-500 text-slate-950 rounded-3xl flex items-center justify-center text-4xl font-bold shadow-2xl shadow-indigo-500/20 mx-auto rotate-3 hover:rotate-0 transition-transform duration-500">
           J
         </div>
         <div>
@@ -116,7 +116,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20 mt-2 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-slate-950 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20 mt-2 flex items-center justify-center gap-2"
             >
               {isLoading ? <Loader2 size={20} className="animate-spin"/> : 'Entrer dans le système'}
             </button>

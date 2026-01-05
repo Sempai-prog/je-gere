@@ -51,7 +51,7 @@ const LaunchButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
         style={{ width: `${progress}%` }}
       />
       
-      <div className="absolute inset-0 flex items-center justify-center gap-3 text-emerald-400 group-hover:text-emerald-300 font-bold z-10 mix-blend-screen tracking-widest text-sm uppercase">
+      <div className="absolute inset-0 flex items-center justify-center gap-3 text-emerald-400 group-hover:text-slate-900 font-bold z-10 mix-blend-screen tracking-widest text-sm uppercase">
         <Play size={20} className={progress > 0 ? 'animate-ping' : ''} />
         <span>{progress > 0 ? (progress >= 100 ? 'LANCEMENT...' : 'MAINTENIR POUR LANCER') : 'LANCER LE SERVICE'}</span>
       </div>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
@@ -17,16 +18,109 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
+              // Base UI (Backgrounds & Text) -> INK BLACK
               slate: {
-                850: '#151f32',
-                900: '#0f172a',
-                950: '#020617',
+                50: "#e6f3fe",
+                100: "#cde8fe",
+                200: "#9cd1fc",
+                300: "#6abafb",
+                400: "#38a3fa",
+                500: "#068cf9",
+                600: "#0570c7",
+                700: "#045495",
+                800: "#033863",
+                850: '#022645', 
+                900: "#011c32",
+                950: "#011423"
               },
+              // Alerts / Danger / Chef -> OXBLOOD
+              rose: {
+                50: "#fde9e7",
+                100: "#fbd3d0",
+                200: "#f7a6a1",
+                300: "#f47a71",
+                400: "#f04e42",
+                500: "#ec2213",
+                600: "#bd1b0f",
+                700: "#8e140b",
+                800: "#5e0d08",
+                900: "#2f0704",
+                950: "#210503"
+              },
+              // Warnings / Service / Energy -> VIVID TANGERINE
+              amber: {
+                50: "#fff3e5",
+                100: "#ffe6cc",
+                200: "#ffce99",
+                300: "#ffb566",
+                400: "#ff9c33",
+                500: "#ff8400",
+                600: "#cc6900",
+                700: "#994f00",
+                800: "#663500",
+                900: "#331a00",
+                950: "#241200"
+              },
+              // Success / Money / Growth -> CHARTREUSE
+              emerald: {
+                50: "#f9fee6",
+                100: "#f3fdce",
+                200: "#e7fb9d",
+                300: "#dbfa6b",
+                400: "#cff83a",
+                500: "#c3f609",
+                600: "#9cc507",
+                700: "#759405",
+                800: "#4e6204",
+                900: "#273102",
+                950: "#1b2201"
+              },
+              // Brand / AI / Clarity -> PORCELAIN
+              indigo: {
+                50: "#e5fff5",
+                100: "#ccffeb",
+                200: "#99ffd6",
+                300: "#66ffc2",
+                400: "#33ffad",
+                500: "#00ff99",
+                600: "#00cc7a",
+                700: "#00995c",
+                800: "#00663d",
+                900: "#00331f",
+                950: "#002415"
+              },
+              // Aliases for semantic usage in code
+              ink: {
+                DEFAULT: "#011c32",
+                950: "#011423"
+              },
+              oxblood: {
+                DEFAULT: "#ec2213"
+              },
+              tangerine: {
+                DEFAULT: "#ff8400"
+              },
+              chartreuse: {
+                DEFAULT: "#c3f609"
+              },
+              porcelain: {
+                DEFAULT: "#00ff99"
+              },
+              // Brand mapping
               brand: {
-                50: '#eff6ff',
-                500: '#3b82f6',
-                600: '#2563eb',
-                900: '#1e3a8a',
+                50: '#e5fff5',
+                500: '#00ff99', // Porcelain
+                600: '#00cc7a',
+                900: '#00331f',
+              }
+            },
+            animation: {
+              'shine': 'shine 2s infinite',
+            },
+            keyframes: {
+              shine: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' },
               }
             }
           }
@@ -40,14 +134,14 @@
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #0f172a; 
+        background: #011423; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155; 
+        background: #033863; 
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #475569; 
+        background: #045495; 
       }
     </style>
   <script type="importmap">

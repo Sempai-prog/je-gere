@@ -13,26 +13,34 @@ interface InputHubProps {
   currentRole: UserRole;
 }
 
-// --- PRESET ENGINE (Gradient & Shadow enhanced) ---
+// --- PRESET ENGINE (Color-Coded) ---
+// Chef = Oxblood (Heat/Blood)
+// Service = Tangerine (Energy/Speed)
+// Manager = Porcelain (Clarity/Tech)
+// Owner = Chartreuse (Money/Growth)
+
 const ROLE_PRESETS: Record<string, Array<{ label: string; icon: any; type: EventType; content: string; color: string; pressure?: number }>> = {
   Chef: [
-    { label: 'Rupture (86)', icon: PackageX, type: EventType.ALERT, content: 'CRITICAL: Rupture de stock (86) sur produit clé.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
-    { label: 'Retard Bon', icon: Clock, type: EventType.LOG, content: 'DELAY: La cuisine prend du retard.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30' },
-    { label: 'Coup de Feu', icon: Flame, type: EventType.SIGNAL, content: 'Cuisine sous pression MAX.', color: 'from-orange-500 to-orange-600 shadow-orange-500/30', pressure: 9 },
-    { label: 'Ça déroule', icon: CheckCircle2, type: EventType.SIGNAL, content: 'Service fluide en cuisine.', color: 'from-emerald-500 to-emerald-600 shadow-emerald-500/30', pressure: 4 },
+    { label: 'Rupture (86)', icon: PackageX, type: EventType.ALERT, content: 'CRITICAL: Rupture de stock (86) sur produit clé.', color: 'from-rose-500 to-rose-700 shadow-rose-500/40' },
+    { label: 'Retard Bon', icon: Clock, type: EventType.LOG, content: 'DELAY: La cuisine prend du retard.', color: 'from-rose-600 to-rose-800 shadow-rose-600/40' },
+    { label: 'Coup de Feu', icon: Flame, type: EventType.SIGNAL, content: 'Cuisine sous pression MAX.', color: 'from-orange-600 to-rose-600 shadow-orange-600/40', pressure: 9 },
+    { label: 'Ça déroule', icon: CheckCircle2, type: EventType.SIGNAL, content: 'Service fluide en cuisine.', color: 'from-emerald-500 to-emerald-700 shadow-emerald-500/40', pressure: 4 },
   ],
   Service: [
-    { label: 'Client Difficile', icon: AlertOctagon, type: EventType.ALERT, content: 'COMPLAINT: Besoin Manager en salle.', color: 'from-rose-500 to-rose-600 shadow-rose-500/30' },
-    { label: 'VIP Installé', icon: Star, type: EventType.LOG, content: 'VIP à table.', color: 'from-purple-500 to-purple-600 shadow-purple-500/30' },
-    { label: 'Table Dressée', icon: UtensilsCrossed, type: EventType.LOG, content: 'Table redressée.', color: 'from-blue-500 to-blue-600 shadow-blue-500/30' },
-    { label: 'Dans le Jus', icon: Users, type: EventType.SIGNAL, content: 'La salle est débordée.', color: 'from-amber-500 to-amber-600 shadow-amber-500/30', pressure: 8 },
+    { label: 'Client Difficile', icon: AlertOctagon, type: EventType.ALERT, content: 'COMPLAINT: Besoin Manager en salle.', color: 'from-amber-500 to-amber-700 shadow-amber-500/40' },
+    { label: 'VIP Installé', icon: Star, type: EventType.LOG, content: 'VIP à table.', color: 'from-amber-400 to-amber-600 shadow-amber-400/40' },
+    { label: 'Table Dressée', icon: UtensilsCrossed, type: EventType.LOG, content: 'Table redressée.', color: 'from-amber-300 to-amber-500 shadow-amber-300/40' },
+    { label: 'Dans le Jus', icon: Users, type: EventType.SIGNAL, content: 'La salle est débordée.', color: 'from-rose-500 to-amber-600 shadow-rose-500/40', pressure: 8 },
   ],
   Manager: [
-    { label: 'Coupe Staff', icon: Users, type: EventType.LOG, content: 'Réduction du personnel (Cut).', color: 'from-slate-600 to-slate-700 shadow-slate-500/30' },
-    { label: 'Incident', icon: AlertTriangle, type: EventType.ALERT, content: 'Incident signalé.', color: 'from-rose-600 to-rose-700 shadow-rose-500/30' },
+    { label: 'Coupe Staff', icon: Users, type: EventType.LOG, content: 'Réduction du personnel (Cut).', color: 'from-indigo-500 to-indigo-700 shadow-indigo-500/40' },
+    { label: 'Incident', icon: AlertTriangle, type: EventType.ALERT, content: 'Incident signalé.', color: 'from-rose-600 to-rose-700 shadow-rose-500/40' },
+    { label: 'Briefing OK', icon: CheckCircle2, type: EventType.LOG, content: 'Briefing équipe effectué.', color: 'from-indigo-400 to-indigo-600 shadow-indigo-400/40' },
+    { label: 'Monitoring', icon: Radio, type: EventType.SIGNAL, content: 'Ronde de contrôle effectuée.', color: 'from-slate-600 to-slate-800 shadow-slate-600/40' },
   ],
   Owner: [
-    { label: 'Observation', icon: ChefHat, type: EventType.LOG, content: 'Observation générale.', color: 'from-indigo-600 to-indigo-700 shadow-indigo-500/30' },
+    { label: 'Observation', icon: ChefHat, type: EventType.LOG, content: 'Observation générale.', color: 'from-emerald-500 to-emerald-700 shadow-emerald-500/40' },
+    { label: 'Ambiance Top', icon: Star, type: EventType.SIGNAL, content: 'Atmosphère excellente.', color: 'from-emerald-400 to-emerald-600 shadow-emerald-400/40' },
   ]
 };
 
@@ -121,8 +129,8 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
        
        {/* FLOATING FEEDBACK TOAST */}
        {feedback && (
-         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md text-white px-6 py-3 rounded-full shadow-2xl animate-in fade-in zoom-in duration-200 font-bold text-sm flex items-center gap-3 border border-white/10">
-           <div className="bg-emerald-500 rounded-full p-1"><CheckCircle2 size={14} className="text-white" /></div>
+         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md text-emerald-400 px-6 py-3 rounded-full shadow-2xl animate-in fade-in zoom-in duration-200 font-bold text-sm flex items-center gap-3 border border-emerald-500/20">
+           <div className="bg-emerald-500 rounded-full p-1"><CheckCircle2 size={14} className="text-slate-900" /></div>
            {feedback}
          </div>
        )}
@@ -131,7 +139,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 tracking-tight">Saisie Express</h2>
           <div className="flex items-center justify-center gap-2">
             <span className="text-slate-500 dark:text-slate-400 font-medium text-sm">Canal Actif :</span>
-            <span className="font-bold text-brand-500 uppercase bg-brand-500/10 px-3 py-0.5 rounded-full text-xs tracking-wider border border-brand-500/20">{currentRole}</span>
+            <span className="font-bold text-indigo-500 uppercase bg-indigo-500/10 px-3 py-0.5 rounded-full text-xs tracking-wider border border-indigo-500/20">{currentRole}</span>
           </div>
        </header>
 
@@ -152,7 +160,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
                 <preset.icon size={36} strokeWidth={1.5} className="drop-shadow-md group-hover:rotate-12 transition-transform duration-300" />
-                <span className="font-bold text-lg leading-none text-center tracking-tight drop-shadow-sm">{preset.label}</span>
+                <span className="font-bold text-lg leading-none text-center tracking-tight drop-shadow-sm text-slate-950/80">{preset.label}</span>
               </button>
             ))}
           </div>
@@ -196,7 +204,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <Flame size={12} /> Tension
                      </h3>
-                     <span className={`text-xl font-black ${pressure > 7 ? 'text-rose-500' : 'text-brand-500'}`}>{pressure}<span className="text-sm font-medium text-slate-400">/10</span></span>
+                     <span className={`text-xl font-black ${pressure > 7 ? 'text-rose-500' : 'text-indigo-500'}`}>{pressure}<span className="text-sm font-medium text-slate-400">/10</span></span>
                    </div>
                    <input 
                      type="range" 
@@ -204,7 +212,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
                      max="10" 
                      value={pressure} 
                      onChange={(e) => setPressure(parseInt(e.target.value))}
-                     className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mb-6 hover:opacity-100 opacity-80 transition-opacity"
+                     className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500 mb-6 hover:opacity-100 opacity-80 transition-opacity"
                    />
                    <button 
                       onClick={() => handleSubmit(EventType.SIGNAL, `Mise à jour Tension : ${pressure}/10`, { pressure })}
@@ -221,7 +229,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
              <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isProcessingDoc}
-                className="p-3 text-slate-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-90"
+                className="p-3 text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-90"
                 title="Upload Document"
              >
                 {isProcessingDoc ? <Loader2 size={24} className="animate-spin"/> : <Upload size={24} />}
@@ -242,7 +250,7 @@ export const InputHub: React.FC<InputHubProps> = ({ addEvent, currentRole }) => 
              <button 
                onClick={() => { handleSubmit(EventType.LOG, inputText); setInputText(''); }}
                disabled={!inputText}
-               className="p-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl disabled:opacity-50 disabled:bg-slate-500 shadow-lg shadow-brand-500/20 active:scale-90 transition-all"
+               className="p-3 bg-indigo-500 hover:bg-indigo-400 text-slate-950 rounded-xl disabled:opacity-50 disabled:bg-slate-500 shadow-lg shadow-indigo-500/20 active:scale-90 transition-all"
              >
                <Send size={20} />
              </button>
