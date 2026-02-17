@@ -14,25 +14,7 @@ import { Briefing } from './components/Briefing'; // NEW IMPORT
 import { OperationalEvent, ViewState, EventType, Shift } from './types';
 import { generateInsight } from './services/geminiService';
 import { UserProvider, useUser } from './context/UserContext';
-
-// --- PERSISTENCE HOOK (Kept for UI State only) ---
-function useStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [value, setValue] = useState(() => {
-    try {
-      const stickyValue = window.localStorage.getItem(key);
-      return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue;
-    } catch (e) {
-      console.warn(`Error parsing localStorage key "${key}":`, e);
-      return defaultValue;
-    }
-  });
-
-  useEffect(() => {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
-
-  return [value, setValue];
-}
+import { useStickyState } from './hooks/useStickyState';
 
 // --- MAIN CONTENT COMPONENT ---
 const AppContent: React.FC = () => {
