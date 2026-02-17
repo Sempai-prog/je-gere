@@ -127,7 +127,13 @@ const FinancialPulseWidget: React.FC = () => (
 
 // C. KITCHEN OPTICS (Chef Specific)
 // Use Oxblood (Rose) for heat/pressure
-const KitchenOpticsWidget: React.FC = () => (
+const KitchenOpticsWidget: React.FC = () => {
+  const barStyles = useMemo(() => [...Array(8)].map((_, i) => ({
+    height: `${20 + Math.random() * 80}%`,
+    opacity: 0.4 + (i/10)
+  })), []);
+
+  return (
   <Widget className="row-span-2" delay={150} title="Le Passe" icon={ChefHat} color="text-slate-500">
      <div className="space-y-6 h-full flex flex-col">
        
@@ -138,8 +144,8 @@ const KitchenOpticsWidget: React.FC = () => (
            <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded">CHARGE ÉLEVÉE</span>
          </div>
          <div className="flex gap-1 h-12 items-end">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="flex-1 bg-rose-500 rounded-sm animate-pulse" style={{ height: `${20 + Math.random() * 80}%`, opacity: 0.4 + (i/10) }} />
+            {barStyles.map((style, i) => (
+              <div key={i} className="flex-1 bg-rose-500 rounded-sm animate-pulse" style={style} />
             ))}
             {[...Array(4)].map((_, i) => (
               <div key={i+8} className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-sm" style={{ height: '10%' }} />
@@ -163,7 +169,8 @@ const KitchenOpticsWidget: React.FC = () => (
        </div>
      </div>
   </Widget>
-);
+  );
+};
 
 // D. FLOOR METRIX (Service Specific)
 // Use Porcelain (Indigo) or Tangerine (Amber) for floor status
@@ -229,6 +236,8 @@ const AlertsWidget: React.FC<{ alerts: any[] }> = ({ alerts }) => (
 // --- 3. MAIN DASHBOARD ---
 
 export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onToggleService, userRole, isReplayMode = false }) => {
+  // Memoized random values for widgets to prevent re-render jitter
+  const kitchenChargeHeights = useMemo(() => [...Array(12)].map(() => `${20 + Math.random() * 60}%`), []);
   const isServiceActive = currentShift?.status === 'active';
   
   // Contextual Data Processing
@@ -296,8 +305,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ events, currentShift, onTo
         {/* Row 2 */}
         <Widget delay={300} title="Charge Cuisine" icon={Thermometer} color="text-slate-400">
            <div className="flex gap-1 h-24 items-end mt-4">
-             {[...Array(12)].map((_, i) => (
-                <div key={i} className={`flex-1 rounded-sm ${i < 9 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-800'}`} style={{ height: `${20 + Math.random() * 60}%` }} />
+             {kitchenChargeHeights.map((height, i) => (
+                <div key={i} className={`flex-1 rounded-sm ${i < 9 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-800'}`} style={{ height }} />
              ))}
            </div>
         </Widget>
