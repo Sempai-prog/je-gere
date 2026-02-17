@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { UserRole, OperationalEvent } from "../types";
 
@@ -64,6 +63,17 @@ export const createChatSession = (role: UserRole, shiftStatus: string): Chat => 
   });
 };
 
+const sanitizeInput = (text: string): string => {
+  return text
+    // Neutralize brackets to prevent tag injection and specific keywords used in prompt structure
+    .replace(/\[/g, '(')
+    .replace(/\]/g, ')')
+    // Prevent role spoofing by modifying prompt keywords
+    // Only target uppercase keywords to avoid affecting normal text
+    .replace(/\bUTILISATEUR\b/g, 'Utilisateur')
+    .replace(/\bSYSTEM\b/g, 'System');
+};
+
 export const sendMessageStream = async (
   chat: Chat, 
   role: string,
@@ -78,7 +88,8 @@ export const sendMessageStream = async (
     ? `[FLUX LIVE]:\n${contextEvents.map(e => `> [${new Date(e.timestamp).toLocaleTimeString('fr-FR').slice(0,5)}] ${e.role.toUpperCase()}: "${e.content}"`).join('\n')}\n[FIN FLUX]\n\n`
     : '[FLUX VIDE]\n\n';
 
-  const finalPrompt = `${contextString}UTILISATEUR (${role.toUpperCase()}): ${message}`;
+  const sanitizedMessage = sanitizeInput(message);
+  const finalPrompt = `${contextString}UTILISATEUR (${role.toUpperCase()}): ${sanitizedMessage}`;
 
   try {
     const resultStream = await chat.sendMessageStream({ message: finalPrompt });
