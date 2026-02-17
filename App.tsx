@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { LayoutDashboard, ListVideo, Radio, Sparkles, Bell, Sun, Moon, Settings as SettingsIcon, Archive, History, LogOut, SkipBack, Rewind } from 'lucide-react';
+import { LayoutDashboard, ListVideo, Radio, Sparkles, Bell, Sun, Moon, Settings as SettingsIcon, History, Rewind } from 'lucide-react';
 import { Dashboard } from './components/Dashboard';
 import { EventTimeline } from './components/TaskBoard';
 import { InputHub } from './components/InputHub';
