@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { UserRole, OperationalEvent } from "../types";
 
@@ -11,8 +10,9 @@ const getApiKey = () => {
   }
 };
 
-const API_KEY = getApiKey();
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const getAiClient = () => {
+    return new GoogleGenAI({ apiKey: getApiKey() });
+};
 
 const getSystemInstruction = (role: string, shiftStatus: string) => `
 IDENTITÉ : Tu n'es PAS une IA. Tu es un vétéran de la restauration ("L'Esprit du Lieu"). 20 ans de métier.
@@ -54,7 +54,7 @@ Réagis UNIQUEMENT aux événements fournis. Si l'input est vide, dis "En positi
 `;
 
 export const createChatSession = (role: UserRole, shiftStatus: string): Chat => {
-  return ai.chats.create({
+  return getAiClient().chats.create({
     model: 'gemini-3-flash-preview',
     config: {
       systemInstruction: getSystemInstruction(role, shiftStatus),
@@ -100,9 +100,9 @@ export const sendMessageStream = async (
 };
 
 export const generateInsight = async (context: string): Promise<string> => {
-  if (!API_KEY) return "Système hors ligne";
+  if (!getApiKey()) return "Système hors ligne";
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `
         ROLE: Fantôme Opérationnel de Restaurant (Français).
@@ -126,10 +126,10 @@ export const generateInsight = async (context: string): Promise<string> => {
 };
 
 export const summarizeDocument = async (base64Data: string, mimeType: string): Promise<string> => {
-  if (!API_KEY) throw new Error("API Key missing");
+  if (!getApiKey()) throw new Error("API Key missing");
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: {
         parts: [
@@ -193,12 +193,12 @@ export const generatePreShiftBriefing = async (role: string): Promise<string[]> 
     return strategies.sort(() => 0.5 - Math.random()).slice(0, 3);
   };
 
-  if (!API_KEY) {
+  if (!getApiKey()) {
     return getFallback(role);
   }
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `
         ROLE: Coach Sportif / Chef Exécutif.
