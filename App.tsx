@@ -14,6 +14,7 @@ import { Briefing } from './components/Briefing'; // NEW IMPORT
 import { OperationalEvent, ViewState, EventType, Shift } from './types';
 import { generateInsight } from './services/geminiService';
 import { UserProvider, useUser } from './context/UserContext';
+import { encryptData, decryptData } from './services/storageService';
 
 // --- PERSISTENCE HOOK (Kept for UI State only) ---
 function useStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -34,14 +35,64 @@ function useStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<Rea
   return [value, setValue];
 }
 
+
+// --- SECURE PERSISTENCE HOOK (For Business Data) ---
+function useSecureStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(defaultValue);
+  const [loaded, setLoaded] = useState(false);
+
+  // Load (Async Decrypt)
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const stored = window.localStorage.getItem(key);
+        if (stored) {
+          const decrypted = await decryptData(stored);
+          if (isMounted && decrypted !== null) {
+            setValue(decrypted);
+          }
+        }
+      } catch (e) {
+        console.error(`Error loading secure key "${key}":`, e);
+      } finally {
+        if (isMounted) setLoaded(true);
+      }
+    };
+    load();
+    return () => { isMounted = false; };
+  }, [key]);
+
+  // Save (Async Encrypt)
+  useEffect(() => {
+    if (!loaded) return;
+
+    let isMounted = true;
+    const save = async () => {
+      try {
+        const encrypted = await encryptData(value);
+        if (isMounted) {
+          window.localStorage.setItem(key, encrypted);
+        }
+      } catch (e) {
+        console.error(`Error saving secure key "${key}":`, e);
+      }
+    };
+    save();
+    return () => { isMounted = false; };
+  }, [key, value, loaded]);
+
+  return [value, setValue];
+}
+
 // --- MAIN CONTENT COMPONENT ---
 const AppContent: React.FC = () => {
   const { user, login, logout, updateRole } = useUser();
   
   // UI State Management
   const [currentView, setCurrentView] = useStickyState<ViewState>('dashboard', 'jg_view');
-  const [events, setEvents] = useStickyState<OperationalEvent[]>([], 'jg_events');
-  const [currentShift, setCurrentShift] = useStickyState<Shift | null>(null, 'jg_current_shift');
+  const [events, setEvents] = useSecureStickyState<OperationalEvent[]>([], 'jg_events');
+  const [currentShift, setCurrentShift] = useSecureStickyState<Shift | null>(null, 'jg_current_shift');
   const [theme, setTheme] = useStickyState<'dark' | 'light'>('dark', 'jg_theme');
 
   // TIME MACHINE STATE
