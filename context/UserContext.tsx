@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole } from '../types';
 
@@ -45,7 +44,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = (role: UserRole, name: string) => {
     setUser({
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name,
       role,
       isAuthenticated: true,
