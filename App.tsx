@@ -14,6 +14,7 @@ import { Briefing } from './components/Briefing'; // NEW IMPORT
 import { OperationalEvent, ViewState, EventType, Shift } from './types';
 import { generateInsight } from './services/geminiService';
 import { UserProvider, useUser } from './context/UserContext';
+import { validateBackupData } from './services/validators';
 
 // --- PERSISTENCE HOOK (Kept for UI State only) ---
 function useStickyState<T>(defaultValue: T, key: string): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -152,14 +153,14 @@ const AppContent: React.FC = () => {
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string);
-        if (json.data && Array.isArray(json.data.events)) {
+        if (validateBackupData(json)) {
           if (window.confirm(`Restaurer le backup du ${new Date(json.timestamp).toLocaleDateString('fr-FR')} ? Ceci remplacera les données actuelles.`)) {
             setEvents(json.data.events);
             setCurrentShift(json.data.currentShift || null);
             alert('Système restauré avec succès.');
           }
         } else {
-          alert('Format de fichier invalide.');
+          alert('Format de fichier invalide ou corrompu.');
         }
       } catch (error) {
         console.error('Import failed', error);
