@@ -12,7 +12,7 @@ const getApiKey = () => {
 };
 
 const API_KEY = getApiKey();
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
 const getSystemInstruction = (role: string, shiftStatus: string) => `
 IDENTITÉ : Tu n'es PAS une IA. Tu es un vétéran de la restauration ("L'Esprit du Lieu"). 20 ans de métier.
@@ -54,6 +54,7 @@ Réagis UNIQUEMENT aux événements fournis. Si l'input est vide, dis "En positi
 `;
 
 export const createChatSession = (role: UserRole, shiftStatus: string): Chat => {
+  if (!ai) throw new Error('AI not initialized');
   return ai.chats.create({
     model: 'gemini-3-flash-preview',
     config: {
@@ -100,7 +101,7 @@ export const sendMessageStream = async (
 };
 
 export const generateInsight = async (context: string): Promise<string> => {
-  if (!API_KEY) return "Système hors ligne";
+  if (!API_KEY || !ai) return "Système hors ligne";
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -126,7 +127,7 @@ export const generateInsight = async (context: string): Promise<string> => {
 };
 
 export const summarizeDocument = async (base64Data: string, mimeType: string): Promise<string> => {
-  if (!API_KEY) throw new Error("API Key missing");
+  if (!API_KEY || !ai) throw new Error("API Key missing");
 
   try {
     const response = await ai.models.generateContent({
@@ -193,7 +194,7 @@ export const generatePreShiftBriefing = async (role: string): Promise<string[]> 
     return strategies.sort(() => 0.5 - Math.random()).slice(0, 3);
   };
 
-  if (!API_KEY) {
+  if (!API_KEY || !ai) {
     return getFallback(role);
   }
 
