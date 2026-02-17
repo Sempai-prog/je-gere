@@ -14,26 +14,50 @@ interface BriefingProps {
 const LaunchButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
   const [holding, setHolding] = useState(false);
   const [progress, setProgress] = useState(0);
-  const intervalRef = useRef<any>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  const animate = (time: number) => {
+    if (startTimeRef.current === null) {
+      startTimeRef.current = time;
+    }
+    const elapsed = time - startTimeRef.current;
+
+    // Duration: 800ms
+    const p = Math.min((elapsed / 800) * 100, 100);
+    setProgress(p);
+
+    if (p < 100) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    } else {
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      onTrigger();
+    }
+  };
 
   const startCounter = () => {
     setHolding(true);
-    let p = 0;
-    intervalRef.current = setInterval(() => {
-      p += 2.5; // ~800ms to fill
-      setProgress(p);
-      if (p >= 100) {
-        clearInterval(intervalRef.current);
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        onTrigger();
-      }
-    }, 20);
+    setProgress(0);
+    startTimeRef.current = null;
+    animationFrameRef.current = requestAnimationFrame(animate);
   };
 
   const stopCounter = () => {
     setHolding(false);
     setProgress(0);
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    startTimeRef.current = null;
   };
 
   return (
@@ -48,7 +72,7 @@ const LaunchButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
       {/* Background Fill Animation */}
       <div 
         className="absolute inset-0 bg-emerald-500 transition-all ease-linear"
-        style={{ width: `${progress}%` }}
+        style={{ width: `${progress}%`, transitionDuration: holding ? '0ms' : '150ms' }}
       />
       
       <div className="absolute inset-0 flex items-center justify-center gap-3 text-emerald-400 group-hover:text-slate-900 font-bold z-10 mix-blend-screen tracking-widest text-sm uppercase">
