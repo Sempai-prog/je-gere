@@ -2,10 +2,23 @@
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { UserRole, OperationalEvent } from "../types";
 
+interface GeminiError {
+  status?: number;
+  response?: {
+    status?: number;
+  };
+  message?: string;
+  body?: string;
+}
+
+function isGeminiError(error: unknown): error is GeminiError {
+  return typeof error === 'object' && error !== null;
+}
+
 const getApiKey = () => {
   try {
     return process.env.API_KEY || '';
-  } catch (e) {
+  } catch (e: unknown) {
     console.warn("API Key access failed or missing.");
     return '';
   }
@@ -91,7 +104,7 @@ export const sendMessageStream = async (
         onChunk(text);
       }
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Gemini Stream Error:", error);
     throw error;
   }
@@ -112,8 +125,8 @@ export const generateInsight = async (context: string): Promise<string> => {
       `,
     });
     return response.text || "Service nominal.";
-  } catch (e: any) {
-    const isRateLimit = e.status === 429 || e.response?.status === 429 || (e.message && e.message.includes('429'));
+  } catch (e: unknown) {
+    const isRateLimit = isGeminiError(e) && (e.status === 429 || e.response?.status === 429 || e.message?.includes('429'));
     
     if (isRateLimit) {
       console.warn("Gemini API Rate Limit Hit (429). Using local fallback.");
@@ -146,7 +159,7 @@ export const summarizeDocument = async (base64Data: string, mimeType: string): P
       }
     });
     return response.text || "Doc illisible.";
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Document summarization failed", e);
     throw new Error("Analyse échouée.");
   }
@@ -214,9 +227,9 @@ export const generatePreShiftBriefing = async (role: string): Promise<string[]> 
     
     const text = response.text || "";
     return text.split('\n').filter(line => line.trim().length > 0).slice(0, 3);
-  } catch (e: any) {
+  } catch (e: unknown) {
     // 2. ERROR HANDLING (429 Handling)
-    const isQuotaError = e.message?.includes('429') || e.status === 429 || (e.body && e.body.includes('RESOURCE_EXHAUSTED'));
+    const isQuotaError = isGeminiError(e) && (e.message?.includes('429') || e.status === 429 || e.body?.includes('RESOURCE_EXHAUSTED'));
     
     if (isQuotaError) {
       console.warn("Gemini Quota Exceeded (429). Activating Local Strategy Engine.");
