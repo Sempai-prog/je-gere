@@ -1,10 +1,8 @@
-
 import React, { useMemo } from 'react';
-import { AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { AreaChart, Area, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { 
   Users, AlertTriangle, TrendingUp, Activity, Thermometer, Play, 
-  Zap, Lock, ChefHat, UtensilsCrossed, Euro, ClipboardList, Clock, 
-  Armchair, Ban, AlertOctagon, History
+  Zap, Lock, ChefHat, Euro, Armchair, Ban
 } from 'lucide-react';
 import { OperationalEvent, EventType, Shift, UserRole } from '../types';
 
