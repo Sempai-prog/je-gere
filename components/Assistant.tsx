@@ -79,13 +79,20 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
 
   // Load voices async (Chrome fix)
   useEffect(() => {
+    const synthesis = synthesisRef.current;
+    if (!synthesis) return;
+
     const loadVoices = () => {
-      synthesisRef.current.getVoices();
+      synthesis.getVoices();
     };
+
     loadVoices();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
+
+    synthesis.addEventListener('voiceschanged', loadVoices);
+
+    return () => {
+      synthesis.removeEventListener('voiceschanged', loadVoices);
+    };
   }, []);
 
   const handleSend = async () => {
