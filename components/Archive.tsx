@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { Calendar, Clock, AlertTriangle, TrendingUp, ChevronRight, Activity, Map, History, Filter, PlayCircle } from 'lucide-react';
 import { OperationalEvent, Shift, EventType, UserRole } from '../types';
+import { reconstructShifts } from '../utils/archiveUtils';
 
 interface ArchiveProps {
   events: OperationalEvent[];
@@ -23,68 +24,11 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
   
   // 1. INTELLIGENT SHIFT RECONSTRUCTION
   // Aggregates raw events into logical Shift objects based on SYSTEM triggers.
-  const shiftsData = useMemo(() => {
-    const shifts: any[] = [];
-    let currentShift: any = null;
-
-    // Sort chronologically for processing
-    const sortedEvents = [...events].sort((a, b) => a.timestamp - b.timestamp);
-
-    sortedEvents.forEach(ev => {
-      // Detect Shift Start
-      if (ev.type === EventType.SYSTEM && ev.content.includes('initialized')) {
-        currentShift = {
-          id: ev.shiftId || ev.id,
-          startTime: ev.timestamp,
-          startEvent: ev,
-          events: [],
-          alerts: 0,
-          pressurePeaks: [] as number[],
-          roles: new Set()
-        };
-      }
-      
-      // Accumulate data if inside a shift
-      if (currentShift) {
-        currentShift.events.push(ev);
-        currentShift.roles.add(ev.role);
-        
-        if (ev.type === EventType.ALERT) currentShift.alerts++;
-        if (ev.metadata?.pressure) currentShift.pressurePeaks.push(ev.metadata.pressure);
-
-        // Detect Shift End
-        if (ev.type === EventType.SYSTEM && ev.content.includes('closed')) {
-          currentShift.endTime = ev.timestamp;
-          currentShift.duration = ev.timestamp - currentShift.startTime;
-          // Calculate Final Stats
-          currentShift.avgPressure = currentShift.pressurePeaks.length 
-            ? (currentShift.pressurePeaks.reduce((a:number, b:number) => a + b, 0) / currentShift.pressurePeaks.length).toFixed(1) 
-            : 'N/A';
-          
-          shifts.push(currentShift);
-          currentShift = null; // Reset
-        }
-      }
-    });
-
-    // Handle Active Shift (Started but not closed)
-    if (currentShift) {
-      currentShift.endTime = Date.now();
-      currentShift.duration = Date.now() - currentShift.startTime;
-      currentShift.isActive = true;
-      // Snapshot current stats
-      currentShift.avgPressure = currentShift.pressurePeaks.length 
-        ? (currentShift.pressurePeaks.reduce((a:number, b:number) => a + b, 0) / currentShift.pressurePeaks.length).toFixed(1) 
-        : 'Actif';
-      shifts.push(currentShift);
-    }
-
-    return shifts.reverse(); // Newest first
-  }, [events]);
+  const shiftsData = useMemo(() => reconstructShifts(events), [events]);
 
   const filteredShifts = useMemo(() => {
     if (filterRole === 'All') return shiftsData;
-    return shiftsData.filter(shift => shift.roles.has(filterRole));
+    return shiftsData.filter(shift => shift.roles.has(filterRole as UserRole));
   }, [shiftsData, filterRole]);
 
   return (
@@ -155,9 +99,9 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
                          Service du {new Date(shift.startTime).toLocaleDateString('fr-FR', { weekday: 'long' })}
                        </h3>
                        <div className="flex items-center gap-3 text-sm text-slate-500 mt-1">
-                         <span className="flex items-center gap-1"><Clock size={14}/> {new Date(shift.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {shift.isActive ? '...' : new Date(shift.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                         <span className="flex items-center gap-1"><Clock size={14}/> {new Date(shift.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {shift.isActive ? '...' : new Date(shift.endTime!).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                          <span className="w-1 h-1 bg-slate-400 rounded-full"/>
-                         <span>{formatDuration(shift.duration)}</span>
+                         <span>{formatDuration(shift.duration!)}</span>
                        </div>
                     </div>
                   </div>
@@ -192,7 +136,7 @@ export const ArchiveView: React.FC<ArchiveProps> = ({ events, userRole, onReplay
 
                {/* ROLES INVOLVED TAGS */}
                <div className="mt-4 flex gap-2">
-                 {Array.from(shift.roles as Set<string>).map((role) => (
+                 {Array.from(shift.roles).map((role) => (
                    <span key={role} className={`text-[10px] font-bold uppercase px-2 py-1 rounded-md ${role === filterRole ? 'bg-indigo-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
                      {role}
                    </span>
