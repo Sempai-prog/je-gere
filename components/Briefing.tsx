@@ -64,15 +64,21 @@ export const Briefing: React.FC<BriefingProps> = ({ role, onConfirm, onCancel })
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBriefing = async () => {
-      // Artificial delay for "Computation" feel
-      setTimeout(async () => {
-        const advice = await generatePreShiftBriefing(role);
+    let isMounted = true;
+
+    // Artificial delay for "Computation" feel
+    const timeoutId = setTimeout(async () => {
+      const advice = await generatePreShiftBriefing(role);
+      if (isMounted) {
         setPoints(advice);
         setLoading(false);
-      }, 1500);
+      }
+    }, 1500);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
     };
-    fetchBriefing();
   }, [role]);
 
   return (
