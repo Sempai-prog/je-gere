@@ -34,7 +34,21 @@ export const Assistant: React.FC<AssistantProps> = ({ events, currentRole, curre
     
     // Voice Config - Prefer French
     const voices = synthesisRef.current.getVoices();
-    const voice = voices.find(v => v.lang.startsWith('fr') && v.name.includes('Google')) || voices.find(v => v.lang.startsWith('fr'));
+    let bestVoice: SpeechSynthesisVoice | undefined;
+    let fallbackVoice: SpeechSynthesisVoice | undefined;
+
+    for (const v of voices) {
+      if (v.lang.startsWith('fr')) {
+        if (v.name.includes('Google')) {
+          bestVoice = v;
+          break;
+        }
+        if (!fallbackVoice) {
+          fallbackVoice = v;
+        }
+      }
+    }
+    const voice = bestVoice || fallbackVoice;
     if (voice) utterance.voice = voice;
 
     utterance.lang = 'fr-FR';
