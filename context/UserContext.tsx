@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { UserRole } from '../types';
 
 interface UserState {
@@ -27,21 +26,9 @@ const DEFAULT_USER: UserState = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize state from LocalStorage to ensure persistence across reloads
-  const [user, setUser] = useState<UserState>(() => {
-    try {
-      const stored = window.localStorage.getItem('jg_user_context');
-      return stored ? JSON.parse(stored) : DEFAULT_USER;
-    } catch (e) {
-      console.warn("Failed to load user context", e);
-      return DEFAULT_USER;
-    }
-  });
-
-  // Persist state changes
-  useEffect(() => {
-    window.localStorage.setItem('jg_user_context', JSON.stringify(user));
-  }, [user]);
+  // SECURITY: Removed localStorage persistence to prevent XSS attacks stealing session data.
+  // In a production environment, use HttpOnly cookies with a backend for secure session management.
+  const [user, setUser] = useState<UserState>(DEFAULT_USER);
 
   const login = (role: UserRole, name: string) => {
     setUser({
