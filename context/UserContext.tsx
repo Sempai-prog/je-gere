@@ -15,6 +15,7 @@ interface UserContextType {
   login: (role: UserRole, name: string) => void;
   logout: () => void;
   updateRole: (role: UserRole) => void;
+  updateUser: (updates: Partial<Pick<UserState, 'name' | 'role' | 'avatar'>>) => void;
 }
 
 const DEFAULT_USER: UserState = {
@@ -57,12 +58,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(DEFAULT_USER);
   };
 
+  const updateUser = (updates: Partial<Pick<UserState, 'name' | 'role' | 'avatar'>>) => {
+    setUser(prev => ({ ...prev, ...updates }));
+  };
+
   const updateRole = (role: UserRole) => {
-    setUser(prev => ({ ...prev, role }));
+    updateUser({ role });
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, updateRole }}>
+    <UserContext.Provider value={{ user, login, logout, updateRole, updateUser }}>
       {children}
     </UserContext.Provider>
   );

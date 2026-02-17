@@ -61,7 +61,7 @@ const DangerButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
 };
 
 export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset }) => {
-  const { user, login } = useUser(); // Using login to update user details hack
+  const { user, updateUser } = useUser();
   const [name, setName] = useState(user.name);
   const [storageSize, setStorageSize] = useState('0 KB');
 
@@ -77,7 +77,7 @@ export const SettingsView: React.FC<SettingsProps> = ({ onExport, onFactoryReset
   }, []);
 
   const handleNameSave = () => {
-    login(user.role, name); // Updates context
+    updateUser({ name });
   };
 
   return (
