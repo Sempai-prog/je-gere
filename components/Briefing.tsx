@@ -12,12 +12,10 @@ interface BriefingProps {
 
 // --- SUB-COMPONENT: LAUNCH BUTTON (Long Press) ---
 const LaunchButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
-  const [holding, setHolding] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<any>(null);
 
   const startCounter = () => {
-    setHolding(true);
     let p = 0;
     intervalRef.current = setInterval(() => {
       p += 2.5; // ~800ms to fill
@@ -31,7 +29,6 @@ const LaunchButton: React.FC<{ onTrigger: () => void }> = ({ onTrigger }) => {
   };
 
   const stopCounter = () => {
-    setHolding(false);
     setProgress(0);
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
