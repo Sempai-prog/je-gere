@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { Calendar, Clock, AlertTriangle, TrendingUp, ChevronRight, Activity, Map, History, Filter, PlayCircle } from 'lucide-react';
+import { Clock, AlertTriangle, Activity, History, Filter, PlayCircle } from 'lucide-react';
 import { OperationalEvent, Shift, EventType, UserRole } from '../types';
 
 interface ArchiveProps {
