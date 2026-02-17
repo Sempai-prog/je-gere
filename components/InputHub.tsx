@@ -6,7 +6,7 @@ import {
   AlertOctagon, CheckCircle2, Upload, Loader2, StopCircle, Flame, FileText, Radio
 } from 'lucide-react';
 import { OperationalEvent, EventType, UserRole } from '../types';
-import { summarizeDocument } from '../services/geminiService';
+
 
 interface InputHubProps {
   addEvent: (event: OperationalEvent) => void;

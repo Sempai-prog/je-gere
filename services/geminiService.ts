@@ -125,33 +125,6 @@ export const generateInsight = async (context: string): Promise<string> => {
   }
 };
 
-export const summarizeDocument = async (base64Data: string, mimeType: string): Promise<string> => {
-  if (!API_KEY) throw new Error("API Key missing");
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              mimeType: mimeType,
-              data: base64Data
-            }
-          },
-          {
-            text: "Tu es un Manager de Restaurant pressé. Analyse ce document. Donne-moi la conclusion brutale en 1 phrase (Total, Problème Critique, ou Info Clé). Pas de 'Ce document montre'."
-          }
-        ]
-      }
-    });
-    return response.text || "Doc illisible.";
-  } catch (e) {
-    console.error("Document summarization failed", e);
-    throw new Error("Analyse échouée.");
-  }
-};
-
 export const generatePreShiftBriefing = async (role: string): Promise<string[]> => {
   // 1. LOCAL STRATEGY ENGINE (Fallback)
   // Provides high-quality, role-specific advice without API calls.
